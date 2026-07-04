@@ -1,0 +1,363 @@
+---
+format:
+  pdf:
+    pdf-engine: xelatex
+    mainfont: "Fira Sans"
+    linestretch: 2
+    documentclass: article
+    papersize: letter
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    colorlinks: true
+    geometry:
+      - margin=1in
+    include-in-header:
+      text: |
+        \usepackage{fancyhdr}
+        \usepackage{graphicx}
+    include-before-body:
+      text: |
+        \begin{titlepage}
+        \centering
+        {\includegraphics[width=0.25\textwidth]{logo-sbs.jpg}\par}
+        \vspace{1cm}
+        {\Huge\bfseries La Alianza Imposible: Negociación Estratégica en Entornos de Alta Tensión\par}
+        \vspace{1cm}
+        {\Large Acuerdos de Alto Nivel entre NovaMind y HelixCorp\par}
+        \vspace{1cm}
+        {\large Integrantes: \par}
+        {\Large\bfseries Ángel Esteban Féliz Ferreras \par}
+        {\Large\bfseries Isaías Asael Hernández Rosario \par}
+        {\Large\bfseries Reynaldo Francisco Tejada Taveras \par}
+        {\Large\bfseries O'Neil Alberto Medina Tolentino \par}
+        \vspace{1cm}
+        {\large Maestría: \par}
+        {\Large\bfseries Ciencia de Datos \par}
+        \vspace{1cm}
+        {\large Profesora \par}
+        {\Large\bfseries Nuria Oriol Palarea \par}
+        \vspace{1cm}
+        {\large Asignatura \par}
+        {\Large\bfseries Habilidades Profesionales y de Dirección \par}
+        \vfill
+        {\large Santo Domingo, República Dominicana\par}
+        {\large \today \par}
+        \end{titlepage}
+        \newpage
+bibliography: references.bib
+csl: apa.csl
+lang: es
+citeproc: true
+---
+
+\newpage
+
+# 1. Introducción: El Arte de Negociar en la Incertidumbre
+
+> *"Negociar bien es como subir al balcón: ver el conflicto desde arriba para encontrar soluciones que desde el suelo parecen imposibles"*  
+> — William Ury [@ury1991getting]
+
+El presente documento aborda un caso de negociación de alto riesgo entre dos empresas tecnológicas, NovaMind y HelixCorp, obligadas a aliarse frente a la entrada de un competidor asiático. El caso presenta una dificultad no tanto técnica como **emocional y estratégica**: dos organizaciones con historial de rivalidad, culturas opuestas y desconfianza mutua deben construir una alianza en menos de diez días.
+
+Una de las premisas centrales de este trabajo es que la mejor negociación no es la que humilla o impone, sino la que **crea valor sostenible** desde la inteligencia emocional, la neurociencia y la ética. Como se ha señalado en diversos foros especializados, *"cuando mente y corazón se alinean, la toma de decisiones se vuelve más acertada, más estratégica y más ética"*.
+
+Este trabajo se estructura como una **narrativa integrada**: comenzamos con una escena de negociación, interrumpimos para analizar los fundamentos teóricos (modelos de negociación, neurociencia, sesgos cognitivos, formación de equipos), y luego retomamos la escena aplicando las soluciones derivadas del marco teórico. Finalizamos con un plan de comunicación interna detallado, una propuesta de acuerdo y una reflexión ética sobre los límites del *win-win*.
+
+El objetivo es demostrar que **negociar no es un duelo de voluntades, sino un arte de precisión, intención y conciencia del impacto a largo plazo** [@fisher2011getting].
+
+\newpage
+
+# 2. Escena de Apertura: La Sala de Juntas del Hotel Diagonal
+
+*Barcelona, 18 de mayo de 2026, 9:00 a.m.*
+
+La sala de juntas del Hotel Diagonal huele a café recién hecho y a tensión contenida. Cuatro personas se sientan alrededor de una mesa de roble. De un lado, los representantes de **NovaMind**: Elena Rojas, Directora de Innovación, de expresión cálida pero mirada láser; y Javier Mendoza, Director Jurídico, con las manos entrelazadas sobre una carpeta negra sellada. Del otro, **HelixCorp**: Carlos Urrutia, Director General, con una pose rígida y una libreta donde apenas ha escrito tres palabras; y Marta Iglesias, Responsable de Operaciones, que ajusta constantemente sus gafas.
+
+Sobre la mesa, un documento de intenciones que nadie ha firmado todavía. En el horizonte, el competidor asiático **TechDragon** anuncia su producto disruptivo en diez días.
+
+Elena rompe el hielo: *"Carlos, Marta, sabemos que no es fácil. Pero si no actuamos juntos, en dos años ninguna de las dos existirá como la conocemos"*.
+
+Carlos responde sin mirarla a los ojos: *"La palabra 'juntos' presupone confianza. Y ustedes filtraron nuestros datos de I+D hace tres años. ¿Por qué deberíamos creerles ahora?"*
+
+Javier interviene con voz metálica: *"Ese litigio está cerrado. Y no estamos aquí para revivir el pasado, sino para construir un cortafuegos contra TechDragon"*.
+
+Marta murmura: *"Construir... nosotros tenemos el hardware, ustedes el software. Pero sin acuerdos claros de propiedad intelectual, esto es un campo minado"*.
+
+La conversación se enreda. Las posiciones se enquistan. Elena propone un receso de quince minutos.
+
+En ese instante, la negociación está en punto muerto. Lo que sigue no es solo un ejercicio de voluntad, sino de **neurociencia aplicada**, **gestión de sesgos** y **creación de valor**.
+
+\newpage
+
+# 3. Marco Teórico: Fundamentos para una Negociación Avanzada
+
+Para comprender y transformar esta escena, necesitamos un marco teórico sólido que integre:
+
+- Modelos de negociación (*win-win*, integrativa vs. distributiva).
+- Neurociencia social (SCARF, emoción y cognición).
+- Sesgos cognitivos (Kahneman, Tversky).
+- Dinámica de equipos (Tuckman, Belbin, Edmondson).
+- Inteligencia emocional (Goleman) y regulación del estrés.
+
+## 3.1. Negociación Integrativa vs. Distributiva
+
+La tradición clásica distingue dos formas de negociar. La **negociación distributiva** (ganar-perder) asume un pastel fijo: cada parte lucha por la mayor porción. En cambio, la **negociación integrativa** (ganar-ganar) busca agrandar el pastel antes de repartirlo, identificando intereses compartidos y soluciones creativas [@fisher2011getting; @lax2006negotiation].
+
+El caso NovaMind-HelixCorp es un ejemplo extremo de necesidad de enfoque integrativo: ninguna puede vencer sola; ambas deben **crear valor** (el producto conjunto) antes de discutir cómo dividir beneficios, propiedad intelectual o control.
+
+@ury1991getting señala que la separación entre *personas* y *problemas* es clave. En nuestra escena, la desconfianza histórica (problema de relación) bloquea la discusión sobre intereses reales (supervivencia frente a TechDragon). Ury sostiene: *"No negocie posiciones, negocie intereses"*.
+
+Además, @bazerman2020negotiation añade que la racionalidad limitada y los sesgos son barreras frecuentes para el *win-win*. Un negociador experto no solo busca su beneficio, sino que **diagnostica los sesgos del otro** y diseña arquitecturas de decisión que faciliten acuerdos.
+
+## 3.2. Neurociencia de la Negociación: El Cerebro como Campo de Batalla
+
+Negociar bajo presión activa circuitos primitivos. La **amígdala**, centro de alarma ante amenazas, puede secuestrar la corteza prefrontal (responsable del razonamiento estratégico). Cuando Carlos Urrutia (HelixCorp) percibe a NovaMind como una amenaza, su cerebro libera **cortisol**, que reduce la flexibilidad cognitiva y aumenta la percepción de riesgo [@leDoux2000amygdala].
+
+Por el contrario, generar confianza libera **oxitocina**, que facilita la cooperación y la toma de riesgos calculados [@zak2005neuroeconomics]. El reto es diseñar una interacción que active el circuito de recompensa social (oxitocina, dopamina) y desactive la respuesta de amenaza (cortisol, amígdala).
+
+@rock2008scarf propuso el modelo **SCARF** (Status, Certainty, Autonomy, Relatedness, Fairness) como cinco dominios que el cerebro procesa como recompensa o amenaza. Aplicaremos este modelo de forma sistemática a los actores del caso.
+
+Además, @damasio1994descartes demostró que las emociones no son enemigas de la razón, sino que los **marcadores somáticos** (sensaciones corporales asociadas a experiencias pasadas) guían la toma de decisiones incluso antes de que la razón consciente intervenga. En la negociación, la *intuición* de Elena Rojas o la *desconfianza visceral* de Javier Mendoza no son irracionales: son inteligencia somática acumulada.
+
+## 3.3. Sesgos Cognitivos en la Mesa de Negociación
+
+@kahneman2011thinking demostró que los humanos no somos agentes racionales puros. Operamos con el *Sistema 1* (rápido, intuitivo, emocional) y el *Sistema 2* (lento, deliberado, lógico). En la negociación, predominan los sesgos:
+
+- **Aversión a la pérdida**: Duele más perder 10.000 € que alegra ganar la misma cantidad. HelixCorp teme perder su propiedad intelectual más de lo que desea ganar el nuevo mercado.
+- **Anclaje**: La primera oferta (o la memoria del litigio) ancla la percepción de lo justo.
+- **Exceso de confianza**: Ambas empresas pueden sobrestimar su posición de alternativa (BATNA).
+- **Sesgo de confirmación**: Cada parte busca pruebas de que la otra es desleal, ignorando señales de cooperación.
+
+Un negociador estratégico debe **desanclar** con contraofertas basadas en criterios objetivos, y **enmarcar** las opciones como ganancias conjuntas antes que pérdidas evitables [@bazerman2020negotiation].
+
+## 3.4. Dinámica de Equipos y Seguridad Psicológica
+
+La negociación no es solo entre dos líderes, sino entre dos **equipos** (dentro de cada empresa y en la mesa). @tuckman1965developmental describió las fases de *forming, storming, norming, performing*. El equipo de HelixCorp está atrapado en *storming* (conflicto interno) y no avanza a *norming*. NovaMind está en *norming* pero choca con el *storming* del otro equipo.
+
+@edmondson1999psychological introdujo el concepto de *seguridad psicológica*: la creencia de que el equipo no castigará ni humillará a quien hable abiertamente. En el caso, ni los abogados de NovaMind ni los operativos de HelixCorp se sienten seguros para proponer soluciones creativas: temen represalias internas.
+
+@belbin2012management identificó nueve roles de equipo necesarios para el alto rendimiento. Mapearemos a los protagonistas según estos roles para entender desequilibrios y proponer acciones correctivas.
+
+## 3.5. Inteligencia Emocional y Regulación del Estrés
+
+@goleman1995emotional popularizó la inteligencia emocional (IE): autoconciencia, autorregulación, motivación, empatía y habilidades sociales. En la negociación, un líder con alta IE reconoce sus propias emociones (el enfado de Carlos, la ansiedad de Marta), las regula y utiliza la empatía para leer al otro.
+
+Técnicas como la **respiración diafragmática**, el *reappraisal* (reinterpretación cognitiva de la amenaza como desafío) y el **mindfulness** reducen la activación amigdalar y devuelven el control a la corteza prefrontal [@goleman2013focus]. La capacidad de regular el propio sistema nervioso no es una opción, sino una competencia crítica en negociaciones de alto estrés.
+
+\newpage
+
+# 4. Aplicación del Modelo SCARF: Tabla y Análisis Distribuido
+
+El modelo SCARF de @rock2008scarf permite diagnosticar por qué los actores reaccionan como lo hacen. A continuación, una **tabla resumen** de los cinco dominios y su manifestación en el caso. Luego, aplicamos el modelo distribuido a cada personaje.
+
+## Tabla 1. Dominios SCARF en la Negociación NovaMind-HelixCorp
+
+| Dominio | Significado | Manifestación en el caso | Estrategia de regulación |
+|---------|-------------|--------------------------|---------------------------|
+| **Status** | Importancia relativa frente a los demás | HelixCorp se siente degradado (NovaMind fue la agresora en litigios). NovaMind se siente superior por su innovación ágil. | Reconocer públicamente el expertise de HelixCorp en hardware. Crear títulos simbólicos (ej: "Co-líder técnico"). |
+| **Certainty** | Capacidad de predecir el futuro | Alta incertidumbre por plazos (10 días) y riesgo legal. Javier (jurídico) busca cláusulas de blindaje total. | Establecer hitos claros, cronogramas, acuerdos escalonados (fase 1, fase 2). Usar datos de mercado para reducir incertidumbre. |
+| **Autonomy** | Sensación de control sobre el entorno | NovaMind quiere transparencia y flexibilidad. HelixCorp quiere control de procesos. Choque cultural. | Diseñar un comité de dirección conjunto con veto cruzado solo para temas críticos. Delegar decisiones operativas. |
+| **Relatedness** | Sentimiento de pertenencia / confianza | Desconfianza histórica por demandas pasadas. Falta de vínculo personal entre los negociadores. | Crear una "reunión prenegociación" informal sin abogados. Compartir historias de éxito en otros ámbitos. |
+| **Fairness** | Percepción de justicia en el intercambio | Marta (operaciones) teme que NovaMind se aproveche de su hardware sin pagar justamente. | Usar criterios objetivos (precios de mercado, royalties estándar sector). Auditoría externa de propiedad intelectual. |
+
+*Fuente: Elaboración propia a partir de @rock2008scarf.*
+
+### 4.1. Análisis SCARF por Personaje
+
+**Elena Rojas (Directora Innovación, NovaMind)**  
+- *Status*: Alto (líder reconocida en IA). Pero amenaza si HelixCorp no la valida.  
+- *Certainty*: Baja. Necesita certeza sobre plazos de integración hardware.  
+- *Relatedness*: Desea crear relación humana con Carlos, pero choca con frialdad.  
+Estrategia: Usar su calidez para generar *relatedness*, pero anclando en datos objetivos para la *certainty*.
+
+**Javier Mendoza (Director Jurídico, NovaMind)**  
+- *Status*: Amenazado si se filtran patentes.  
+- *Autonomy*: Necesita control estricto de las cláusulas de IP.  
+- *Fairness*: Hipervigilante ante cualquier asimetría.  
+Estrategia: Proponer un *escrow* de código fuente y patentes en un tercero neutral. Así gana *certainty* sin bloquear la alianza.
+
+**Carlos Urrutia (Director General, HelixCorp)**  
+- *Status*: Es el líder formal, pero percibe que NovaMind tiene más poder de innovación.  
+- *Certainty*: Necesita plazos claros y que no le cambien las reglas.  
+- *Relatedness*: Baja (estilo frío). Ve la confianza como un riesgo.  
+Estrategia: Permitirle liderar la fase de integración técnica (aumenta *status* y *autonomy*). No forzar cercanía emocional; usar canales estructurados.
+
+**Marta Iglesias (Responsable Operaciones, HelixCorp)**  
+- *Autonomy*: Amenazada porque NovaMind podría cambiar procesos sin consultarla.  
+- *Certainty*: Necesita protocolos rígidos.  
+- *Fairness*: Recela de la "transparencia radical" como excusa para acceder a sus secretos.  
+Estrategia: Diseñar manual de operaciones conjunto con revisiones periódicas. Darle derecho a veto sobre cambios operativos.
+
+\newpage
+
+# 5. Mapeo de Roles de Belbin en los Equipos Negociadores
+
+Aplicamos la tipología de @belbin2012management para identificar qué roles están presentes y cuáles faltan. Esto explica desequilibrios y sugiere acciones.
+
+## Tabla 2. Roles Belbin detectados en NovaMind y HelixCorp
+
+| Personaje | Rol Belbin primario | Contribución | Debilidad potencial |
+|-----------|---------------------|--------------|---------------------|
+| Elena Rojas (NovaMind) | **Impulsor (Shaper)** | Dinamiza, supera obstáculos, energía contagiosa. | Puede atropellar sensibilidades. |
+| Javier Mendoza (NovaMind) | **Evaluador (Monitor Evaluator)** | Análisis lógico, detecta riesgos legales. | Puede ralentizar o ser excesivamente crítico. |
+| Carlos Urrutia (HelixCorp) | **Coordinador (Coordinator)** | Claridad en objetivos, madurez. | Puede parecer distante o poco empático. |
+| Marta Iglesias (HelixCorp) | **Implementador (Implementer)** | Disciplina, convierte ideas en acciones. | Rigidez ante cambios de última hora. |
+
+**Roles ausentes (clave para la alianza):**
+- **Cohesivo (Teamworker)**: Nadie está explícitamente dedicado a suavizar tensiones y construir puentes humanos. Sería necesario incorporar un perfil de RRHH o un facilitador externo.
+- **Investigador de recursos (Resource Investigator)**: Nadie explora opciones externas (alianzas alternativas, financiación, etc.). Podría ampliar el BATNA de cada empresa.
+- **Finalizador (Completer Finisher)**: La presión temporal exige alguien que vigile plazos y detalles. Marta puede asumirlo parcialmente, pero necesita apoyo.
+
+**Recomendación**: Incluir en las reuniones a un **Cohesivo** (ej: una persona de comunicación interna de cada empresa) y definir un *Project Manager* conjunto como **Finalizador**.
+
+\newpage
+
+# 6. Diagnóstico de la Escena: Intereses Explícitos y Ocultos
+
+Después del receso de quince minutos, Elena Rojas decide cambiar de estrategia. Ha recordado el modelo de intereses de @fisher2011getting. Sabe que las posiciones declaradas ("no compartiremos IP", "no cederemos el control") esconden intereses más profundos.
+
+## Tabla 3. Mapa de intereses (explícitos vs. ocultos)
+
+| Actor | Posición explícita | Interés oculto | Necesidad humana subyacente (SCARF) |
+|-------|--------------------|---------------------------------|---------------------|
+| NovaMind (Elena) | "Compartamos datos abiertamente para innovar rápido" | Que HelixCorp reconozca su liderazgo técnico; no ser ralentizados. | Status, Autonomy |
+| NovaMind (Javier) | "Blindaje total de patentes antes de cualquier intercambio" | Evitar demandas futuras; proteger su reputación legal. | Certainty, Fairness |
+| HelixCorp (Carlos) | "Nosotros controlamos la integración del hardware" | No depender de un socio que ya les traicionó; mantener el poder de veto. | Status, Autonomy |
+| HelixCorp (Marta) | "Procedimientos estrictos y auditorías" | Que NovaMind no modifique los procesos sin su consentimiento. | Certainty, Fairness |
+
+**Intereses comunes ocultos** (oportunidades de creación de valor):
+- Ambas necesitan que el producto conjunto llegue al mercado antes de TechDragon (el **tiempo** es un interés compartido).
+- Ambas temen una filtración de IP, pero también temen quedarse obsoletas (el **riesgo de no hacer nada** es mayor que el riesgo de la alianza).
+- Ambas desean salir en la prensa como líderes visionarias, no como fracasadas (interés reputacional común).
+
+\newpage
+
+# 7. Plan de Comunicación Interna Detallado
+
+El ejercicio exige un *plan de comunicación interna* para gestionar la narrativa dentro de cada empresa. Una negociación de alto nivel no puede sostenerse si los equipos internos no confían en sus representantes o si los rumores torpedean el acuerdo.
+
+## 7.1. Objetivos de la comunicación interna
+
+1. **Alinear expectativas**: Explicar por qué la alianza es necesaria (vs. alternativa de fracaso).
+2. **Reducir resistencia activa**: Especialmente en HelixCorp (cultura conservadora) y en el departamento jurídico de NovaMind.
+3. **Proteger la confidencialidad** sin generar desconfianza.
+4. **Construir una narrativa de "ganar-ganar"** incluso antes de que el acuerdo se cierre.
+
+## 7.2. Públicos objetivos y canales
+
+| Público interno | Empresa | Canales recomendados | Frecuencia | Mensaje clave |
+|----------------|---------|----------------------|------------|----------------|
+| Equipo directivo (C-suite) | Ambas | Reunión semanal de 30 min (virtual) + informe ejecutivo | Semanal | "La alianza es estratégica; protegeremos IP y control mediante cláusulas robustas." |
+| Departamento de I+D | NovaMind | Slack channel #alianza-novahelix + AMA con Elena | Cada 3 días | "Vuestra creatividad es el alma del proyecto. Vamos a establecer un entorno de innovación protegido." |
+| Operaciones y producción | HelixCorp | Newsletter interna + vídeo de Carlos explicando los beneficios | Semanal | "Mantenemos nuestros estándares de calidad. NovaMind se adaptará a nuestros protocolos críticos." |
+| Equipo jurídico | Ambas (por separado) | Reuniones de 15 min diarias con Javier y su homólogo en HelixCorp | Diaria (durante la negociación) | "Estamos construyendo un escrow de IP y cláusulas de resolución de disputas. No se filtrará nada sin vuestro visto bueno." |
+| Resto de empleados | Ambas | Comunicado único firmado por los dos CEOs (después del cierre) | Una vez | "Hemos forjado una alianza que nos hace más fuertes frente a TechDragon. Juntos crearemos el futuro de la salud." |
+
+## 7.3. Gestión de rumores y resistencia
+
+En HelixCorp, algunos ingenieros veteranos ya murmuran: *"NovaMind nos quiere robar el hardware"*. Para contrarrestar, se diseñará una **campaña de "mitos y realidades"**:
+
+- *Mito*: "Van a cambiar nuestra línea de producción".  
+- *Realidad*: "La integración se hará respetando todos nuestros procesos; cualquier cambio será votado por un comité paritario".
+
+En NovaMind, los desarrolladores temen que la burocracia de HelixCorp ahogue la innovación. Mensaje: *"Hemos acordado un 'sandbox de innovación' donde podréis experimentar sin restricciones, siempre que los resultados pasen luego por control de calidad conjunto"*.
+
+## 7.4. Métricas de éxito del plan de comunicación
+
+| Métrica | Línea base (antes) | Objetivo (durante la negociación) | Método de medición |
+|-------------------------------------|-------------------------|--------------------|--------------------|
+| Confianza en la dirección (escala 1-10) | NovaMind: 7 / HelixCorp: 4 | NovaMind: ≥8 / HelixCorp: ≥6 | Encuesta anónima semanal |
+| Nivel de rumores negativos | Alto (más de 5 conversaciones informales detectadas por RRHH) | Reducción del 50% | Monitoring de canales informales por RRHH |
+| Asistencia voluntaria a sesiones AMA | 30% del equipo | 70% | Registro de asistencia |
+| Intención de permanencia (si el acuerdo es público) | 85% en NovaMind, 70% en HelixCorp | Mantener o mejorar | Encuesta de clima |
+
+## 7.5. Ejemplo de comunicación crítica: el momento del "anuncio de preacuerdo"
+
+Cuando se alcance un preacuerdo (antes de la firma final), se enviará el siguiente mensaje interno (ficticio):
+
+> **ASUNTO: Un paso histórico para nuestro futuro**  
+> *Equipo de NovaMind / HelixCorp:*  
+> Hoy hemos alcanzado un preacuerdo con [la otra empresa] para desarrollar conjuntamente la próxima generación de dispositivos médicos con IA. Sabemos que hay escepticismo, pero quiero ser transparente:  
+> 1. Hemos acordado un *escrow* de patentes: ninguna de las dos accederá a la IP crítica sin consentimiento explícito.  
+> 2. Se creará un comité técnico paritario con poder de veto sobre cambios en procesos.  
+> 3. El plazo de integración es agresivo (6 meses), pero contaremos con recursos externos para no sobrecargar a los equipos.  
+> En los próximos días tendréis sesiones específicas con vuestros managers para resolver dudas. Este es el momento de demostrar que podemos competir con los gigantes asiáticos.  
+> — Elena / Carlos
+
+\newpage
+
+# 8. Propuesta de Acuerdo y Escenarios Alternativos
+
+## 8.1. Acuerdo final propuesto (tras aplicar el marco teórico)
+
+Basados en el análisis SCARF, los intereses ocultos y los roles Belbin, proponemos el siguiente acuerdo estructurado en **tres fases**:
+
+### Fase 1: Precaución y blindaje (días 1-10)
+- Firma de un **Acuerdo de Confidencialidad Reforzado** con penalizaciones simétricas.
+- Establecimiento de un **escrow de propiedad intelectual** ante un notario independiente. Cada empresa deposita su código fuente y diseños de hardware, pero el acceso solo se libera si ambas lo autorizan o si un árbitro resuelve un conflicto.
+- Creación de un **Comité de Dirección Conjunto** (2 personas por empresa). Las decisiones estratégicas requieren unanimidad; las operativas, mayoría simple.
+
+### Fase 2: Desarrollo conjunto (meses 1-6)
+- **Sandbox de innovación**: Espacio donde los equipos de I+D de ambas empresas pueden compartir datos no críticos y prototipar. Todo resultado nuevo se registra como propiedad conjunta con royalties divididos 60%-40% (a favor de quien haya aportado la patente base).
+- **Manual de integración** elaborado por Marta Iglesias (Implementador) y revisado por Javier Mendoza (Evaluador). Incluye protocolos de seguridad, auditorías quincenales y un proceso de escalamiento de conflictos en 48 horas.
+- **Bonificaciones vinculadas a hitos**: Si el producto conjunto se lanza antes de 10 meses, los equipos reciben un bono del 15% sobre sus salarios (para alinear incentivos).
+
+### Fase 3: Escalamiento y salida (a partir del mes 7)
+- Opción de compra de la participación de la otra empresa después de 2 años, mediante valoración por una firma independiente (Big Four).
+- Cláusula de *non-compete*: durante 3 años, ninguna de las dos puede aliarse con TechDragon.
+- Si la alianza se disuelve, cada parte recupera su IP depositada en el escrow y se dividen las patentes conjuntas según la regla de contribución.
+
+## 8.2. Escenarios alternativos (si la negociación fracasa)
+
+**Escenario A (BATNA de NovaMind)**: Alianza con un fabricante de hardware chino (menor calidad pero más rápido). Riesgo: pérdida de reputación en Europa. Probabilidad de éxito: 40%.
+
+**Escenario B (BATNA de HelixCorp)**: Desarrollo interno de software de IA con una startup israelí. Tiempo estimado: 18 meses. Para entonces, TechDragon ya dominará el mercado. Probabilidad de éxito: 20%.
+
+**Escenario C (Mejor alternativa conjunta)**: No alianza total, sino un acuerdo limitado de I+D para un componente específico, manteniendo cada una su independencia. Menor riesgo legal, pero también menor valor. Probabilidad de éxito intermedia.
+
+Recomendación: perseguir la alianza completa (Escenario propuesto) con un **plan de contingencia** que active el Escenario C si las negociaciones se enquistan en los últimos tres días.
+
+\newpage
+
+# 9. Estrategias de Regulación Emocional para Momentos de Tensión
+
+Basado en @goleman1995emotional, @damasio1994descartes y técnicas de mindfulness, proponemos un **protocolo de regulación** que los negociadores pueden usar durante la reunión:
+
+1. **Detección temprana** (señales fisiológicas: aumento de ritmo cardíaco, tensión mandibular).  
+2. **Pausa de 2 minutos**: "Necesitamos verificar un dato con nuestros equipos técnicos". Salir de la sala.  
+3. **Reappraisal**: Reformular la amenaza como desafío. Ejemplo: "La desconfianza de Carlos no es un ataque, es su forma de proteger a su empresa. ¿Qué necesidad no está siendo atendida?"  
+4. **Respiración diafragmática**: 4 segundos inspiración, 6 espiración. Reduce cortisol.  
+5. **Regreso con reencuadre**: "Entiendo su preocupación por la IP. ¿Qué tal si exploramos cómo un escrow podría darles más control del que tienen ahora?"  
+
+Además, se designará a un **observador emocional** (rol rotatorio) que, sin participar en la discusión de fondo, levanta la mano si detecta que el nivel de tensión supera un umbral. Su única función es pedir un receso.
+
+\newpage
+
+# 10. Reflexión Ética: Los Límites del Win-Win y la Dignidad
+
+Una pregunta recurrente en la literatura especializada es: **¿siempre es posible el win-win?** @bazerman2020negotiation reconocen que hay situaciones (fraude, abuso de poder, amenazas explícitas) donde la mejor opción es no negociar. En nuestro caso, la tensión no ha alcanzado ese extremo, pero podríamos preguntarnos: ¿qué pasaría si HelixCorp exigiera, como condición, que NovaMind revelara sus algoritmos de IA sin ninguna protección? Ahí, la respuesta ética sería *"no"*, incluso si eso significa perder el acuerdo.
+
+El *win-win* no es ingenuo; es sofisticado, pero no es absoluto. Como señala @damasio1994descartes, la emoción de *justicia* o *indignación* es un marcador somático válido. Negociar no significa tolerar la humillación. En nuestro acuerdo propuesto, hemos blindado la dignidad de ambas partes mediante el escrow, el comité paritario y las cláusulas de veto. Esto es coherente con la visión de una negociación que no humilla, no amenaza, no destruye.
+
+La metáfora del **tiro con arco** ilustra bien esta filosofía: el arquero no lucha contra el objetivo; se alinea con él. La alianza NovaMind-HelixCorp es posible si ambos arqueros alinean su propósito común: crear valor para el mercado y para sus equipos, sin sacrificar su integridad.
+
+\newpage
+
+# 11. Conclusiones
+
+- La negociación entre NovaMind y HelixCorp es un caso prototípico de **conflicto emocional y cultural** donde las herramientas técnicas tradicionales son insuficientes.  
+- El modelo **SCARF** permite diagnosticar amenazas y recompensas cerebrales, diseñando estrategias para regular el estrés y construir confianza.  
+- Los **sesgos cognitivos** (especialmente aversión a la pérdida y anclaje) deben ser gestionados mediante anclajes objetivos y reencuadres.  
+- Los **roles de equipo Belbin** identificaron ausencias críticas (Cohesivo, Finalizador) que deben cubrirse para evitar el fracaso.  
+- El **plan de comunicación interna** detallado es indispensable para alinear a los equipos y evitar sabotajes internos.  
+- La **reflexión ética** nos recuerda que el *win-win* tiene límites: la dignidad no es negociable.  
+
+Como afirma @ury1991getting: *"El éxito en la negociación no se mide solo por el acuerdo, sino por la calidad de la relación que perdura"*.
+
+\newpage
+
+# Referencias
+
+:::{#refs}
+:::

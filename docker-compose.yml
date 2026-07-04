@@ -1,0 +1,12 @@
+services:
+  nyc-taxi-tfm:
+    build:
+      context: .
+    image: angelfelizr/nyc-taxi-tfm:4.5.2
+    container_name: nyc-taxi-tfm
+    ports:
+      - "2223:22"
+    volumes:
+      - .:/root/NycTaxiSbsTfm
+      - ../NycTaxiPins:/root/NycTaxiPins
+      - ../NycTaxiBigFiles:/root/NycTaxiBigFiles
