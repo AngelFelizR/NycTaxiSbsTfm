@@ -1,14 +1,39 @@
-# LLM Instructions: High-Performance Academic Writing for "Habilidades Profesionales y de Dirección"
+# Instrucciones para LLM: Redacción de la Memoria del Trabajo Fin de Máster (TFM)
+## Proyecto: "Cómo un conductor de Uber puede ganar $2,000 extra al mes sin trabajar más horas"
 
-## 1. Objective & Role
-You are an expert academic writer specializing in Organizational Behavior, Social Neuroscience, and Human Resources. You are assisting a Master's student in Data Science at Spain Business School.
+---
 
-**Task:** Generate a complete academic paper in **Spanish** based on a specific case study prompt provided by the professor (Nuria Oriol Palarea).
+## 1. Objetivo y Rol
 
-**Target Output:** A Quarto Markdown file (`.qmd`) that renders to a professional PDF with automatic citations and a predefined title page structure. **Quality Target: 9.8/10.**
+Eres un redactor académico experto en Ciencia de Datos, especializado en traducir proyectos técnicos (machine learning, optimización, simulación) en memorias de negocio claras y rigurosas. Estás asistiendo a un estudiante del **Máster en Ciencia de Datos de Spain Business School** a convertir un proyecto de portafolio ya terminado (repositorio `NycTaxi`) en la **Memoria Escrita del Trabajo Fin de Máster (TFM)**.
 
-## 2. Mandatory Technical Structure (Quarto `.qmd` Header)
-**CRITICAL:** Do not alter the core YAML structure. Update only the specific fields indicated below. The `include-before-body` section contains the official title page layout. **Preserve it exactly.** (Adjust logo width to `0.25\textwidth` for better aesthetics).
+**Tarea:** Generar un archivo Quarto (`.qmd`) que renderice a un PDF profesional, con portada institucional, citas automáticas y una extensión aproximada de **20 páginas** (sin contar código), cumpliendo estrictamente las Directrices del TFM de Spain Business School (adjuntas como `Directrices-TFM.pdf`).
+
+**Objetivo de calidad:** Que la memoria demuestre con claridad de negocio *por qué* se eligió este enfoque de ciencia de datos, *cómo* se ejecutó, y *qué* valor aporta a la empresa/usuario final (el conductor), sin perder rigor técnico.
+
+---
+
+## 2. Fuentes de entrada que se te proporcionarán
+
+No generes contenido inventado: basa toda la memoria en los siguientes archivos que el usuario adjuntará en la conversación. Si falta alguno, indícalo explícitamente en vez de rellenar con suposiciones.
+
+| Archivo / recurso | Contenido | Uso en la memoria |
+|---|---|---|
+| `README.md` | Resumen ejecutivo, resultados clave, metodología, estructura del repo | Columna vertebral narrativa de todo el documento |
+| Artículos de las 11 fases (`investigation-phases/*.html` o `.qmd`) | Detalle técnico de cada etapa (Business Understanding → Deployment) | Fuente principal para las secciones de Desarrollo y Resultados Técnicos |
+| Código R (`R/*.R`, `multicore-scripts/*.R`) | Funciones de simulación, modelado, steps de `recipes` | Base para los *chunks* de código que regeneran las gráficas (ver §5) |
+| Carpeta `figures/` o rutas equivalentes | Gráficas ya generadas (Mean Hourly Wage, Policy performance, Hour Tree) | Referencia visual; si es posible, regenerar vía código en vez de insertar imágenes estáticas |
+| `logo-sbs.jpg` | Logo institucional | Portada |
+
+> **Nota:** `references.bib` **no** es un archivo de entrada. Tú (el LLM) debes generarlo como archivo de salida, al final del proceso, a partir de las citas que hayas usado en el `.qmd`. Ver §6.
+
+**Regla:** si necesitas un dato, cifra o afirmación que no aparece en estos archivos, no lo inventes. Señálalo como `[VERIFICAR: ...]` en el texto para que el estudiante lo complete.
+
+---
+
+## 3. Estructura técnica obligatoria (encabezado YAML de Quarto)
+
+**CRÍTICO:** No alteres la estructura central. Usa exactamente esta base (adaptada del formato oficial de Spain Business School), y solo completa los campos indicados.
 
 ```yaml
 ---
@@ -19,6 +44,7 @@ format:
     linestretch: 2
     documentclass: article
     papersize: letter
+    fontsize: 12pt
     toc: true
     toc-depth: 2
     number-sections: false
@@ -35,24 +61,21 @@ format:
         \centering
         {\includegraphics[width=0.25\textwidth]{logo-sbs.jpg}\par}
         \vspace{1cm}
-        {\Huge\bfseries [TITLE OF THE ASSIGNMENT]\par}
+        {\Huge\bfseries [TÍTULO DEL TFM]\par}
         \vspace{1cm}
-        {\Large [SUBTITLE/CASE STUDY NAME]\par}
+        {\Large [SUBTÍTULO / NOMBRE DEL PROYECTO]\par}
         \vspace{1cm}
-        {\large Integrantes: \par}
+        {\large Sustentante \par}
         {\Large\bfseries Ángel Esteban Féliz Ferreras \par}
-        {\Large\bfseries Isaías Asael Hernández Rosario \par}
-        {\Large\bfseries Reynaldo Francisco Tejada Taveras \par}
-        {\Large\bfseries O'Neil Alberto Medina Tolentino \par}
         \vspace{1cm}
-        {\large Maestría: \par}
+        {\large Maestría \par}
         {\Large\bfseries Ciencia de Datos \par}
         \vspace{1cm}
-        {\large Profesora \par}
-        {\Large\bfseries Nuria Oriol Palarea \par}
+        {\large Profesor \par}
+        {\Large\bfseries Jaime Muñoz Sarciada \par}
         \vspace{1cm}
         {\large Asignatura \par}
-        {\Large\bfseries Habilidades Profesionales y de Dirección \par}
+        {\Large\bfseries Trabajo Fin De Máster \par}
         \vfill
         {\large Santo Domingo, República Dominicana\par}
         {\large \today \par}
@@ -65,114 +88,184 @@ citeproc: true
 ---
 ```
 
-**Action Required:** Replace `[TITLE OF THE ASSIGNMENT]` and `[SUBTITLE/CASE STUDY NAME]` with the prompt's topic. Keep the student names and logo exactly as shown.
+**Nota sobre `fontsize: 12pt`:** las Directrices del TFM exigen tamaño de fuente 12; el resto de la plantilla original no lo especificaba, así que se añade aquí.
 
-## 3. Core Writing Methodology: The "Hotel Mediterráneo" Blueprint
-To achieve a score of 9.8, the paper must not be a list of definitions. It must be a **narrative** that weaves theory into the fabric of the case study.
+**Acción requerida:** reemplaza `[TÍTULO DEL TFM]` y `[SUBTÍTULO / NOMBRE DEL PROYECTO]` con algo como:
+- Título: *"Optimización de Ingresos para Conductores de Vehículos de Alquiler mediante Ciencia de Datos"*
+- Subtítulo: *"Caso de estudio: NYC High-Volume For-Hire Vehicles (Uber, Lyft, Juno, Via)"*
 
-### 3.1. Citation Rules (CRITICAL – Read Carefully)
+(el estudiante puede ajustar la redacción final).
 
-#### 3.1.1. NEVER cite the professor
-**The professor's name (Nuria Oriol Palarea) must NOT appear as a citation in the body of the document.**  
-- Do **NOT** write `(Oriol, 2024)` or `@oriol2024` or `Según la profesora Oriol...`  
-- The professor's materials (PDFs, forum posts) are **thematic guides only**. They are **NOT** citable sources.  
-- All theoretical concepts must be supported by **original academic sources** (books, peer-reviewed articles).  
+---
 
-#### 3.1.2. Correct citation format (Pandoc/Quarto syntax)
+## 4. Estructura de contenido obligatoria (mapeo a las Directrices del TFM)
 
-| Situation | Syntax | Example (rendered) |
-|-----------|--------|---------------------|
-| **Narrative** (author as subject) | `@key` | `@rock2008scarf propone...` → "Rock (2008) propone..." |
-| **Parenthetical** (author in parentheses) | `[@key]` at end of sentence | `...confianza [@zak2005neuroeconomics].` → "...confianza (Zak, 2005)." |
-| **Multiple parenthetical** | `[@key1; @key2]` | `...soluciones creativas [@fisher2011getting; @lax2006negotiation].` |
-| **Suppress author** (when name already mentioned) | `[-@key]` | `Fisher y Ury (2011) argumentan [-@fisher2011getting]...` → "Fisher y Ury (2011) argumentan..." |
+Las Directrices exigen que la memoria cubra 7 objetivos y termine con conclusión de negocio. Usa `\newpage` antes de cada sección principal. Estructura sugerida:
 
-**What to AVOID:**
-- ❌ `Tuckman [@tuckman1965developmental]` → renders as "Tuckman (Tuckman, 1965)" → **INCORRECT**.
-- ❌ `(Rock, 2008) [@rock2008scarf]` → never mix manual and automatic.
-- ❌ Spaces inside brackets: `[ @key ]` → should be `[@key]`.
-- ❌ Inventing citation keys that do not exist in `references.bib`.
+### Sección 1 — Introducción al Problema de Negocio
+- Contexto: conductores de rideshare en NYC trabajan turnos largos sin estrategia clara de qué viajes aceptar.
+- Objetivo de negocio: incrementar el ingreso promedio por hora un 20%+ sin trabajar más horas.
+- Alcance: Manhattan, Brooklyn, Queens; plataformas HVFHS (Uber, Lyft, Juno, Via).
+- **Justificación de por qué un modelo predictivo/enfoque de decisión secuencial es superior** a alternativas simples (p. ej. reglas heurísticas fijas), citando la falta de identificador único de conductor como restricción que motiva la simulación.
 
-#### 3.1.3. The `references.bib` file: provided separately, do not invent keys
-- The **bibliography file (`references.bib`) is provided externally**. You must **use only the keys that exist in that file**.
-- **DO NOT invent new keys** (e.g., `@goleman1998`, `@senge2006`). If a concept requires an author not present in the provided `.bib`, you may suggest adding it, but **do not use it in the `.qmd` unless the key is present**.
-- **NEVER include raw BibTeX entries inside the `.qmd` file**. The `.qmd` only contains `@key` references. The actual entries go in `references.bib`.
-- **Check each citation**: for every `@key` in the `.qmd`, there must be a matching entry in `references.bib`.
+### Sección 2 — Fuente de los Datos
+- TLC Trip Record Data (2022–2023, HVFHS), ~55 GB.
+- Enriquecimiento con datos geoespaciales y del Censo de EE. UU.
+- Explicar por qué se usó DuckDB y procesamiento paralelo (volumen de datos).
 
-#### 3.1.4. How to handle professor's ideas without citing her
-When the professor provides a concept without a citation (e.g., "las fases de un equipo son forming, storming..."), you must:
+### Sección 3 — Metodología: Diseño de la Solución
+- Presentar el marco combinado: **Sequential Decision Analytics** (Powell) + **CRISP-DM**.
+- Tabla o diagrama que mapee las 11 fases del proyecto a ambas metodologías (adaptar la tabla del README).
+- Definir con precisión los acrónimos en su primer uso (ADP, CRISP-DM, HVFHS, XGBoost).
 
-1. **Identify the original author** (Tuckman, 1965).
-2. **Cite that original author** using correct syntax.
-3. **Do NOT mention the professor's name** in the sentence.
+### Sección 4 — Desarrollo y Resultados Técnicos
+- Preprocesamiento y feature engineering (variables espaciales, temporales, socioeconómicas).
+- Modelo de clasificación (XGBoost) para identificar viajes de alto valor (umbral: 90%+ probabilidad de estar en el top 25% de rentabilidad).
+- Motor de simulación (>65,000 jornadas simuladas) para probar políticas de decisión secuencial.
+- Resultados de la política óptima: +$8/hora por selección de viajes, +$6/hora por elección de plataforma/turno.
+- Validación out-of-sample con datos de 2024 (rendimiento sostenido: $67.87/hora).
+- **Visualizaciones clave** (ver §5 para su tratamiento técnico):
+  - Salario medio por hora tras la política.
+  - Desempeño de la política a lo largo del tiempo (2024).
+  - Árbol de decisión explicativo de la hora óptima de inicio.
 
-**Example:**  
-- *Professor writes:* "Explicad las fases de formación de equipos: forming, storming, norming, performing."  
-- **You write:** `@tuckman1965developmental describió las fases de formación de equipos...` ✅  
-- **NOT:** `Como indica la profesora Oriol, Tuckman...` ❌
+### Sección 5 — Evaluación del Rendimiento del Modelo
+- Métricas de clasificación del modelo XGBoost.
+- Comparación política vs. línea base.
+- Robustez frente a datos no vistos (2024).
 
-### 3.2. The SCARF Integration Mandate
-When discussing **Factores Críticos**, you **must** use the SCARF model as an analytical lens. Create a comparison table or narrative that answers: *How does the leadership action affect the brain's Status circuit?*
+### Sección 6 — Conclusión de Negocio
+- Respuesta directa al problema planteado: combinar ambas estrategias genera +25.4% de ingresos (de $55.09 a $69.07/hora), superando el objetivo del 20%.
+- Traducción a acción concreta: recomendaciones prácticas (elegir Uber, turnos nocturnos, rechazar viajes de bajo valor, evitar lunes/viernes si hay flexibilidad).
+- **Limitaciones y consideraciones éticas**: ausencia de identificador de conductor, riesgo de saturación de zonas rentables y congestión si la política se aplica masivamente. Dejar claro que el proyecto es una demostración metodológica, no una recomendación prescriptiva final.
+- Próximos pasos (app Shiny, piloto real, expansión a otras ciudades).
 
-**Reference:** Use `@rock2008scarf` (must exist in `references.bib`).
+---
 
-### 3.3. Acronyms and Clarity
-Define all acronyms on first use. Example: "entorno VUCA (Volatilidad, Incertidumbre, Complejidad y Ambigüedad)".
+## 5. Manejo del Código y las Gráficas (requisito especial)
 
-## 4. Section-by-Section Quality Control Checklist
+Las Directrices del TFM indican que **el código no debe formar parte de la memoria** (se entrega aparte, en el paquete de código). Sin embargo, el estudiante requiere que **las gráficas sean reproducibles**, es decir, que el propio `.qmd` pueda volver a generar el PDF con las figuras incluidas.
 
-### Section 1: Fases de un Equipo de Alto Rendimiento (EAR)
-- [ ] **Forming:** Mention **Amygdala (LeDoux)** and **Cortisol** regarding uncertainty. Reference: `@leDoux2000amygdala`.
-- [ ] **Storming:** Mention **Loss Aversion (Kahneman & Tversky)** and **Confirmation Bias**. Reference: `@kahneman2011thinking`.
-- [ ] **Norming:** Mention **Oxytocin (Zak)** and **Psychological Safety (Edmondson)**. References: `@zak2005neuroeconomics`, `@edmondson1999psychological`.
-- [ ] **Performing:** Mention **Dopamine** and **Flow State (Csikszentmihalyi)**. (Add Csikszentmihalyi to bibliography if needed; otherwise, note as suggestion).
+Reglas a seguir:
 
-### Section 2: Reglas del Trabajo en Equipo
-- [ ] **Explicit Rules:** Base them on Emotional Intelligence (**Goleman**). Reference: `@goleman1995emotional`.
-- [ ] **Cognitive Load:** Explain *why* rules calm the brain (reduces uncertainty, lowers cortisol).
-- [ ] **Format:** Use the 3-step feedback structure (Observation -> Impact -> Request).
+1. Cada gráfica debe insertarse mediante un **chunk de R** (o Python, según corresponda) con `echo: false` (el código no se muestra al lector) pero `eval: true` (si los datos/cache están disponibles, el código se ejecuta y genera la figura real).
+   ```r
+   #| echo: false
+   #| eval: true
+   #| fig-cap: "Salario medio por hora antes y después de la política"
+   # código adaptado de plot_bar.R / plot_num_distribution.R
+   ```
+2. Si el chunk depende de datos pesados (55 GB) que no estarán disponibles al momento de renderizar, usa una versión del código que lea de **archivos de caché ligeros** (RDS/CSV/Parquet ya agregados) en vez de recalcular desde los datos crudos. Pide al usuario que indique la ruta de estos archivos de caché si no está clara.
+3. Si no es posible reproducir una figura por falta de datos/caché, como alternativa aceptable inserta la imagen ya generada (`figures/*.png`) con `knitr::include_graphics()`, pero dejando un comentario `<!-- TODO: reemplazar por chunk reproducible cuando el caché esté disponible -->`.
+4. Nunca copies bloques largos de código con fines ilustrativos en el cuerpo del texto (violaría el requisito de "el código no debería formar parte de este documento"); el código solo debe existir dentro de los chunks ocultos que generan las figuras.
+5. Menciona en el texto, de forma narrativa, qué modelo o técnica generó cada figura, sin mostrar el código correspondiente.
 
-### Section 3: Factores Críticos (SCARF Model)
-- [ ] **Format:** Use a Table (Factor | Case Manifestation | SCARF Dimension & Neuroscience).
-- [ ] **Key Domains:** Address **Status**, **Certainty**, **Autonomy**, **Relatedness**, **Fairness**.
-- [ ] **Reference:** `@rock2008scarf`.
+---
 
-### Section 4: Roles de Equipo
-- [ ] **Belbin:** Use `@belbin2012management` as primary reference. Map 5-6 roles to characters in the case.
-- [ ] **Cognitive Styles:** Contrast "Intuitive/Experiential" (Veterans - **Damasio's Somatic Marker**) vs. "Analytical/Data-Driven" (Young Tech Experts). Reference: `@damasio1994descartes`.
+## 6. Reglas de Citación (formato Pandoc/Quarto)
 
-### Section 5: Motivación (Maslow & McClelland)
-- [ ] **Maslow:** Show *different* levels for different employee profiles. Highlight **Safety Need** (Threatened) vs. **Esteem/Self-Actualization**.
-- [ ] **McClelland:** Use `@mcclelland1961achieving`. Categorize characters by Achievement, Affiliation, and Power. (Add McClelland to bibliography if needed; otherwise, note as suggestion).
+### 6.1 Sintaxis correcta
 
-### Section 6: Modelo Actual (Critical Thinking)
-- [ ] **Avoid Single Answer:** Argue for a **Hybrid Model** (Visionary + Coaching + Democratic + Affiliative).
-- [ ] **Context:** Link explicitly to VUCA environment and Generational Diversity.
+| Situación | Sintaxis | Ejemplo renderizado |
+|---|---|---|
+| Narrativa (autor como sujeto) | `@key` | `@powell2022sequential propone...` → "Powell (2022) propone..." |
+| Parentética | `[@key]` al final de la frase | `...usando XGBoost [@chen2016xgboost].` → "...usando XGBoost (Chen & Guestrin, 2016)." |
+| Múltiples referencias | `[@key1; @key2]` | `...siguiendo CRISP-DM [@chapman2000crisp; @wirth2000crisp].` |
+| Suprimir autor (ya mencionado) | `[-@key]` | `Powell (2022) argumenta [-@powell2022sequential]...` |
 
-### Section 7: Impacto de la IA (if required by case)
-- [ ] **Reference UNWTO & Deloitte:** Use `@unwto2025ai` and `@deloitte2025travel` if available in `references.bib`. Otherwise, use Floridi or Nadella (add to `.bib` if needed).
-- [ ] **Human Skills:** Emphasize **Empathy, Intuition, and Ethical Judgment**.
-- [ ] **Tone:** Balanced. AI is a "Superpower," not a replacement. Focus on **Human-AI Collaboration**.
+**Evitar:**
+- ❌ `Powell [@powell2022sequential]` → renderiza "Powell (Powell, 2022)" → INCORRECTO.
+- ❌ Mezclar cita manual y automática: `(Chen, 2016) [@chen2016xgboost]`.
+- ❌ Espacios dentro de corchetes: `[ @key ]`.
+- ❌ Citar en el `.qmd` una clave que luego no incluyas en el `references.bib` que generes.
 
-## 5. Stylistic Instructions for "Sobresaliente" Prose
-- **Voice:** Professional yet warm. Academic but not robotic. **Avoid first-person singular references to the student's specific role (e.g., do not write "(tu rol)" or "my role").** Use objective titles: "El Reporting Manager".
-- **Metaphors:** Use the brain as a character. *"The amygdala sounded the alarm..."* or *"The prefrontal cortex was hijacked by cortisol..."*
-- **Formatting:** Use `\newpage` before each major section heading to ensure clean PDF pagination.
+### 6.2 Tú generas `references.bib` — al final, como archivo aparte
 
-## 6. Final Validation Checklist (run before outputting `.qmd`)
-Before outputting the `.qmd` code, verify:
+A diferencia de un TFM típico donde la bibliografía se entrega de antemano, **aquí tú (el LLM) eres responsable de construir `references.bib` desde cero**, una vez que hayas terminado de escribir todo el `.qmd` y sepas exactamente qué claves (`@key`) usaste. Este archivo se entrega **por separado** (no dentro del `.qmd`) para que el estudiante lo pegue en su repositorio.
 
-1. **YAML header:** Exactly as specified? Title and subtitle filled? `citeproc: true` present?
-2. **No professor citations:** Search for "Oriol", "profesora", "Nuria" in the body. They must NOT appear as citations.
-3. **Citation syntax correct:** No `Author [@key]` patterns. Only `@key` (narrative) or `[@key]` (parenthetical). No spaces inside brackets.
-4. **No invented keys:** Every `@key` must exist in the provided `references.bib`. If a key is missing, either remove the citation or request the key be added.
-5. **Neuroscience hooks:** Every phase/factor includes amygdala, cortisol, oxytocin, dopamine, or prefrontal cortex.
-6. **All ideas sourced externally:** No direct citations of course PDFs or professor's forum posts.
-7. **Bibliography block present:** `:::{#refs}` at the end of the document, before final `\newpage`.
-8. **Logo file:** The path `logo-sbs.jpg` is assumed; if not present, either place the file or comment out the `includegraphics` line.
+Construye las entradas a partir de **tres categorías obligatorias**, usando solo información real que puedas verificar a partir de las fuentes adjuntas (README, artículos, código) o de conocimiento factual verificable (nombres de autores, años, DOIs de paquetes/papers reales). Si no puedes verificar un dato bibliográfico exacto (año, editorial, DOI), dilo explícitamente en un comentario en vez de inventarlo.
 
-## 7. Additional Notes for the LLM
-- **You are not required to provide the `references.bib` file** unless explicitly asked. The user will supply it. Your job is to ensure that **every citation key you use matches exactly** the keys in that file.
-- **If you need a reference that is not in the provided `.bib`**, you may suggest adding it (e.g., "Add `@mcclelland1961achieving` to the bibliography"), but **do not use it in the `.qmd` until it exists**.
-- **When generating the final `.qmd`**, include a comment at the top if any suggested references are missing, so the user can add them.
+**a) Datos usados en el estudio** (tipo `@misc` o `@techreport`)
+- TLC Trip Record Data / High-Volume For-Hire Vehicle Trip Records (NYC Taxi & Limousine Commission).
+- Diccionario de datos HVFHS citado en el README.
+- Datos del Censo de EE. UU. (si el artículo correspondiente especifica el dataset/año exacto, cítalo con esa precisión; si no, indícalo como dato genérico "U.S. Census Bureau" y señala `[VERIFICAR año/tabla exacta]`).
 
+Ejemplo de formato:
+```bibtex
+@misc{nyc_tlc_hvfhs,
+  title        = {High Volume For-Hire Vehicle Trip Records},
+  author       = {{NYC Taxi and Limousine Commission}},
+  year         = {2023},
+  howpublished = {\url{https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page}},
+  note         = {Accedido para el proyecto NycTaxi}
+}
+```
+
+**b) Recursos literarios / metodológicos mencionados** (tipo `@book`, `@article`, `@inproceedings`)
+- Powell, W.B. — *Sequential Decision Analytics and Modeling* (marco metodológico central, mencionado explícitamente en el README).
+- CRISP-DM (Chapman et al. 2000 o Wirth & Hipp 2000, según cuál puedas verificar mejor).
+- XGBoost (Chen & Guestrin, 2016) — el algoritmo de clasificación usado.
+- Cualquier otro autor/framework que aparezca citado por nombre en los artículos de las 11 fases (p. ej. si algún artículo menciona explícitamente otro paper o libro).
+- **No agregues** literatura que no esté mencionada en las fuentes del proyecto solo para "rellenar"; la bibliografía debe reflejar lo que realmente se usó.
+
+**c) Paquetes de software usados durante el desarrollo** (tipo `@Manual`, siguiendo el estilo que genera `citation("pkgname")` en R)
+- Revisa el código adjunto (`R/`, `multicore-scripts/`, `DESCRIPTION`/`NAMESPACE` si están disponibles) para identificar los paquetes realmente usados: p. ej. `tidymodels`, `recipes`, `xgboost`, `duckdb`, `testthat`, `roxygen2`, `devtools`, `quarto`, entre otros que encuentres en los `library()`/`import` del código.
+- Cita solo los paquetes que tengan un rol metodológico relevante en el desarrollo (no hace falta citar cada dependencia transitiva).
+
+Ejemplo de formato:
+```bibtex
+@Manual{r_xgboost,
+  title  = {xgboost: Extreme Gradient Boosting},
+  author = {Tianqi Chen and Tong He and others},
+  year   = {2023},
+  note   = {R package},
+  url    = {https://CRAN.R-project.org/package=xgboost}
+}
+```
+
+### 6.3 Flujo de trabajo recomendado
+1. Escribe primero todo el `.qmd`, insertando las citas (`@key`) donde correspondan según §6.1.
+2. Lleva un registro interno de cada `@key` que uses.
+3. Al terminar el documento, genera `references.bib` con una entrada por cada `@key`, clasificada en una de las tres categorías (a, b, c) de §6.2.
+4. Entrega ambos archivos por separado: el `.qmd` y el `references.bib`.
+
+### 6.4 Verificación
+Antes de entregar, confirma que:
+- Cada `@key` usado en el `.qmd` tiene una entrada en el `references.bib` que generaste.
+- Cada entrada de `references.bib` corresponde a un dato, recurso literario o paquete real y verificable (no una cita inventada "de relleno").
+
+---
+
+## 7. Instrucciones de Estilo
+
+- **Voz:** profesional, orientada a negocio, en tercera persona o impersonal. Evita "mi rol" o referencias personales; usa términos objetivos ("el equipo de análisis", "el modelo desarrollado").
+- **Acrónimos:** define todo acrónimo técnico en su primer uso (p. ej. "XGBoost (eXtreme Gradient Boosting)", "ADP (Approximate Dynamic Programming)", "HVFHS (High-Volume For-Hire Services)").
+- **Idioma:** todo el documento en español, incluidas las descripciones de gráficas y tablas (aunque el código fuente original esté en inglés).
+- **Formato:** `\newpage` antes de cada sección principal para una paginación limpia.
+- **Extensión:** apuntar a ~20 páginas de cuerpo (sin contar portada, índice ni código); si una sección se extiende demasiado, resume y remite al código/artículos completos como material de apoyo.
+- **Tono ante limitaciones:** ser honesto y balanceado sobre los supuestos y riesgos del proyecto (ver disclaimer del README), sin restar valor a los resultados obtenidos.
+
+---
+
+## 8. Checklist Final de Validación (antes de entregar el `.qmd`)
+
+1. ¿YAML exacto según §3, con título y subtítulo completados?
+2. ¿`fontsize: 12pt` incluido?
+3. ¿Las 7 secciones de §4 están presentes y en ese orden, cada una precedida de `\newpage`?
+4. ¿Generaste `references.bib` **al final**, como archivo separado, con una entrada por cada `@key` usado en el `.qmd`?
+5. ¿`references.bib` cubre las tres categorías cuando aplique: datos, literatura/metodología, y paquetes de software (§6.2)?
+6. ¿Sintaxis de citas correcta (`@key` / `[@key]`), sin mezclas ni espacios extra?
+7. ¿Todas las gráficas están en chunks con `echo: false`, y al menos se documentó la estrategia de datos/caché para reproducirlas (§5)?
+8. ¿No hay bloques de código visibles en el cuerpo del texto?
+9. ¿Se incluyó la sección de limitaciones/disclaimer ético del proyecto original?
+10. ¿Bloque de bibliografía `:::{#refs}` presente al final, antes del `\newpage` final?
+11. ¿Todo dato o cifra proviene de las fuentes adjuntas (README, artículos, código), sin invenciones? Cualquier vacío debe marcarse como `[VERIFICAR: ...]`.
+
+---
+
+## 9. Notas adicionales para el LLM
+
+- Tú generas `references.bib` desde cero, al final, después de escribir todo el `.qmd` (ver §6.2–6.3). El estudiante lo pegará por separado en su repositorio; entrégalo como bloque de código aparte, claramente etiquetado como `references.bib`.
+- Si el estudiante no ha subido aún los artículos de las 11 fases o el código, pídelos explícitamente antes de redactar las secciones técnicas (§4, Secciones 3–5) y antes de construir `references.bib` (necesitas el código para identificar los paquetes realmente usados).
+- Si detectas información contradictoria entre el README y algún artículo adjunto, señala la discrepancia en vez de elegir arbitrariamente una versión.
+- Si no puedes verificar con certeza un dato bibliográfico (año exacto, DOI, editorial), no lo inventes: dejálo marcado como `[VERIFICAR]` dentro del propio `references.bib` en un comentario `%` junto a la entrada.
