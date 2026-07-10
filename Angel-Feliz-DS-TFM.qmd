@@ -25,23 +25,23 @@ format:
       text: |
         \begin{titlepage}
         \centering
-        {\includegraphics[width=0.25\textwidth]{logo-sbs.jpg}\par}
+        {\includegraphics[width=0.4\textwidth]{logo-sbs.jpg}\par}
         \vspace{1cm}
-        {\Huge\bfseries Optimización de Ingresos para Conductores de Vehículos de Alquiler mediante Ciencia de Datos\par}
+        {\large\bfseries Optimización de Ingresos para Taxistas de Mediante el Análisis de Datos de Vehículos de Alquiler de Alta Demanda \par}
         \vspace{1cm}
-        {\Large Caso de estudio: NYC High-Volume For-Hire Vehicles (Uber, Lyft, Juno, Via)\par}
+        {\large Caso de estudio: NYC High-Volume For-Hire Vehicles\newline(Uber, Lyft, Juno, Via)\par}
         \vspace{1cm}
         {\large Sustentante \par}
-        {\Large\bfseries Ángel Esteban Féliz Ferreras \par}
+        {\large\bfseries Ángel Esteban Féliz Ferreras \par}
         \vspace{1cm}
         {\large Maestría \par}
-        {\Large\bfseries Ciencia de Datos \par}
+        {\large\bfseries Ciencia de Datos \par}
         \vspace{1cm}
         {\large Profesor \par}
-        {\Large\bfseries Jaime Muñoz Sarciada \par}
+        {\large\bfseries Jaime Muñoz Sarciada \par}
         \vspace{1cm}
         {\large Asignatura \par}
-        {\Large\bfseries Trabajo Fin De Máster \par}
+        {\large\bfseries Trabajo Fin De Máster \par}
         \vfill
         {\large Santo Domingo, República Dominicana\par}
         {\large \today \par}
@@ -64,10 +64,8 @@ library(data.table)
 library(ggplot2)
 library(ggtext)
 library(scales)
-library(gt)
 library(lubridate)
 library(tidymodels)
-library(DiagrammeR)
 library(infer)
 
 ## Set up pin board
@@ -81,15 +79,6 @@ Params$BoroughColors <- unlist(Params$BoroughColors)
 highlight_text <- function(x) {
   paste0(" <span style='color:", Params$ColorHighlight, ";'>**", x, "**</span> ")
 }
-
-library(sysfonts)
-library(showtext)
-
-showtext_auto()
-font_add_google("Fira Sans", "Fira Sans")  # o simplemente usa "sans" mientras
-
-# Verificar
-print(font_families())
 
 ```
 
@@ -174,8 +163,11 @@ El tamaño final de la base de datos DuckDB fue de aproximadamente **55.8 GB**.
 
 El proyecto se guió por un marco metodológico híbrido que combina el estándar de minería de datos CRISP-DM con los principios de la Analítica de Decisión Secuencial [@powell2022sequential; @chapman2000crisp]. Este enfoque permitió estructurar el desarrollo de un modelo predictivo y su integración en un proceso de toma de decisiones optimizado. El siguiente diagrama mapea las 11 fases del proyecto a ambas metodologías:
 
+![](figures/01-diagrama-SDA-DS.jpg)
+
 ```{r}
 #| label: framework-diagram
+#| eval: false
 #| out.width: "100%"
 #| fig-cap: "Marco combinado de Analítica de Decisión Secuencial y CRISP-DM\nFuente: Elaboración propia."
 
@@ -183,37 +175,38 @@ DiagrammeR::grViz(
   "
 digraph Parallel_Methodologies {
   graph [layout = dot, rankdir = TB, fontsize = 11, splines = ortho, nodesep = 0.65, ranksep = 0.3]
-  node [shape = box, fontname = 'DejaVu Sans', penwidth = 1.2, style = filled, fillcolor = '#ffffff', width = 2.5]
+  node [shape = box, fontname = 'sans', penwidth = 1.5, style = filled, fillcolor = '#ffffff', width = 3]
   edge [arrowsize = 0.75]
 
-  // ==================== SDA (Powell) ====================
-  subgraph cluster_powell {
-    label = <<B>Modeling Process For SDA</B><BR/>(Sequential Decision Analytics)>
-    fontname = 'DejaVu Sans'
-    labeljust = 'c'
-    style = filled; fillcolor = '#F8F4FF'
-    
-    ProblemNarrative [label = 'Problem Narrative Description']
-    ProblemFraming [label = 'Problem Framing']
-    MathModel [label = 'Defining Mathematical Model']
-    UncertaintyModel [label = 'Defining Uncertainty Model']
-    DesignPolicies [label = 'Design Policies']
-    EvaluatePolicies [label = 'Evaluate Policies']
-  }
+// ==================== SDA (Powell) ====================
+subgraph cluster_powell {
+  label = <<B>Proceso de Modelado para SDA</B><BR/>(Analítica de Decisiones Secuenciales)>
+  fontname = 'sans'
+  labeljust = 'c'
+  style = filled; fillcolor = '#F8F4FF'
+  
+  ProblemNarrative [label = <Descripción Narrativa<BR/>del Problema>]
+  ProblemFraming [label = 'Planteamiento del Problema']
+  MathModel [label = <Definición del<BR/>Modelo Matemático>]
+  UncertaintyModel [label = <Definición del Modelo<BR/>de Incertidumbre>]
+  DesignPolicies [label = 'Diseño de Políticas de Decisión']
+  EvaluatePolicies [label = <Evaluación de<BR/>Políticas de Decisión>]
+}
 
-  // ==================== CRISP-DM ====================
-  subgraph cluster_crisp {
-    label = <<B>CRISP-DM</B>>
-    fontname = 'DejaVu Sans'
-    labeljust = 'c'
-    style = filled; fillcolor = '#F0F7FF'
-    Business [label = 'Business Understanding']
-    DataU [label = 'Data Understanding']
-    DataP [label = 'Data Preparation']
-    Modeling [label = 'Modeling']
-    Evaluation [label = 'Evaluation']
-    Deployment [label = 'Deployment']
-  }
+// ==================== CRISP-DM ====================
+subgraph cluster_crisp {
+  label = <<B>CRISP-DM</B><BR/>(Ciencia de Datos)>
+  fontname = 'sans'
+  labeljust = 'c'
+  style = filled; fillcolor = '#F0F7FF'
+
+  Business [label = 'Comprensión del Negocio']
+  DataU [label = 'Comprensión de los Datos']
+  DataP [label = 'Preparación de los Datos']
+  Modeling [label = 'Modelado']
+  Evaluation [label = 'Evaluación']
+  Deployment [label = 'Despliegue']
+}
 
   // Flujo interno Powell
   ProblemNarrative -> ProblemFraming -> MathModel -> UncertaintyModel -> DesignPolicies -> EvaluatePolicies
@@ -719,6 +712,8 @@ Para poder confirmar si alguno de los factores definidos al inicio de la jornado
 Al graficar los resultados de la simulación podemos ver que efectivamentem la distribución presenta y la larga cola a la derecha, lo que quiere decir que alguno días fueron especialmente rentable registrando días de hasta **$120** la hora lo cual serían como ganar **$960** por un día de trabajo.
 
 ```{r}
+#| label: Start Simulations
+
 InitialZoneSimResults <- pin_read(
   BoardLocal,
   "InitialZoneSimResults"
@@ -805,6 +800,8 @@ Luego trazamos el top 10% de los días simulados el modelo de arbol pudo identic
 - La **zona de inicio** no afectan los resultados al final del día
 
 ```{r}
+#| label: Interpretacion del modelo arbol
+
 Weekdays <- c(
   "Domingo",
   "Lunes",
@@ -863,6 +860,8 @@ pin_read(BoardLocal, "TreeResultsToExplain") |>
 Al comparar los resultados de aplicar las estregías identificadas por el modelo de arbol pudimos crear una política que mejora los resutados del la línea base y de los de la política de aceptar/rechajar viajes basado en el modelo de Xgboost.
 
 ```{r}
+#| label: Resultados de aplicar inicio
+
 FinalPfaMeansAfterStart <- pin_read(
   BoardLocal,
   "FinalPfaMeansAfterStart"
@@ -925,7 +924,8 @@ ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
 
 El verdadero valor del modelo se mide por el **aumento en el salario por hora** derivado de su implementación en la simulación. El siguiente gráfico muestra la evolución de la política a lo largo de los meses de 2024 (datos no vistos durante el entrenamiento), confirmando la consistencia de los resultados.
 
-```{r policy-performance-plot, echo = FALSE, fig.cap="", warning = FALSE, message = FALSE}
+```{r}
+#| label: policy-performance-plot
 
 SimulationHourlyWage2024 <- pin_read(BoardLocal, "SimulationHourlyWage2024")
 FinalStartTimeResults2024 <- pin_read(BoardLocal, "FinalStartTimeResults2024")

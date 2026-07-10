@@ -1,7 +1,7 @@
 ColorHighlight: lightslateblue
 ColorHighlightLow: '#D3CDF7'
 ColorGray: gray80
-BaseFontFamily: DejaVu Sans
+BaseFontFamily: sans
 BoroughColors:
   Manhattan: '#e41a1c'
   Queens: '#377eb8'
