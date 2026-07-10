@@ -3,7 +3,7 @@ let
 in
   builtins.attrValues {
     inherit (pkgs.rPackages)
-      tibble stringr glue lubridate patchwork scales
-      tidymodels xgboost recipes infer car knitr rmarkdown webshot2
-      ggplot2 ggtext gt here withr;
+      tibble stringr glue lubridate knitr rmarkdown
+      tidymodels xgboost recipes infer car sysfonts showtext
+      ggplot2 ggtext ggrepel scales here withr;
   }
