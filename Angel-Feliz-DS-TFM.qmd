@@ -7,20 +7,23 @@ format:
   pdf:
     pdf-engine: xelatex
     mainfont: "DejaVu Sans"
-    linestretch: 2
+    linestretch: 1.5
     documentclass: article
     papersize: letter
     fontsize: 12pt
     toc: true
     toc-depth: 2
-    number-sections: false
+    number-sections: true
     colorlinks: true
+    fig-width: 7
+    fig-dpi: 350
     geometry:
-      - margin=1in
+      - margin=0.6in
     include-in-header:
       text: |
         \usepackage{fancyhdr}
         \usepackage{graphicx}
+        \usepackage{caption}
     include-before-body:
       text: |
         \begin{titlepage}
@@ -84,11 +87,31 @@ highlight_text <- function(x) {
 
 \newpage
 
+# Resumen Ejecutivo
+
+Los conductores de vehículos de alquiler en Nueva York carecen de una estrategia clara para seleccionar viajes rentables, lo que reduce sus ingresos por hora. Este proyecto propone un sistema de apoyo a la decisión basado en modelos predictivos y simulación Monte Carlo, con el objetivo de incrementar el salario medio por hora al menos un 20% sin aumentar la jornada laboral.
+
+\bigskip
+
+Utilizando datos públicos de la TLC (2022‑2023) y fuentes complementarias (censos, OpenStreetMap), se entrena un clasificador XGBoost que estima la probabilidad de que un viaje ofertado esté entre el 25% más rentable de las alternativas disponibles en los próximos 15 minutos.
+
+\bigskip
+
+La política óptima de aceptación se define con un umbral de decisión del 90% (τ=0.9) y se combina con la elección de la plataforma (Uber) y el horario de inicio (nocturno), lo que eleva el salario medio de $55.09 a $69.07 por hora (+25.4%), superando el objetivo.
+
+\bigskip
+
+La validación con datos de 2024 confirma la consistencia de los resultados. El proyecto se presenta como una demostración metodológica, con limitaciones éticas y operativas que deben considerarse antes de su implementación masiva.
+
+\newpage
+
 # Introducción al Problema de Negocio
 
 ## Contexto
 
 Los conductores de vehículos de alquiler en la ciudad de Nueva York (NYC) enfrentan un desafío constante: trabajar largas jornadas sin una estrategia clara sobre qué viajes aceptar. En un mercado dominado por plataformas como Uber, Lyft, Juno y Via, la mayoría de los conductores adoptan una política pasiva, aceptando prácticamente todos los viajes que se les presentan, sin evaluar su rentabilidad potencial. Esta falta de selectividad conduce a horas de trabajo improductivas y a un ingreso por hora que no refleja el esfuerzo ni el tiempo invertido.
+
+\bigskip
 
 ## Objetivo de Negocio
 
@@ -97,13 +120,14 @@ El objetivo central de este proyecto es **incrementar el ingreso promedio por ho
 1. Identificar y aceptar los viajes más rentables
 2. Seleccionar las condiciones óptimas para iniciar su jornada laboral (plataforma, zona, día y hora de inicio).
 
-
 ## Alcance
 
 El estudio se centra en los datos de viajes de **Vehículos de Alquiler de Alto Volumen (HVFHS)** que operan en los distritos de **Manhattan, Brooklyn y Queens** durante los años 2022 y 2023. Estos datos, proporcionados por la Comisión de Taxis y Limusinas de Nueva York (TLC), cubren las operaciones de las principales plataformas de ridesharing.
 
+\newpage
 
-## Justificación de un Enfoque Predictivo y de Decisión Secuencial
+
+## Justificación de un Enfoque Predictivo y Secuencial
 
 Un enfoque basado en **reglas heurísticas fijas** (por ejemplo, "rechazar viajes de menos de 5 dólares") es insuficiente para capturar la complejidad y variabilidad del mercado de viajes, ya que la rentabilidad de un viaje depende de múltiples factores interrelacionados: 
 
@@ -113,7 +137,7 @@ Un enfoque basado en **reglas heurísticas fijas** (por ejemplo, "rechazar viaje
 - La duración del viaje
 - La distancia del viaje
 
-Además, la decisión de aceptar o rechazar un viaje no es estática; es un **proceso secuencial** en el que cada decisión afecta las oportunidades futuras y por tanto la única manera que tenemos de saber el efecto acumulado de al final del día de tomar diferentes decisiones es **crear una simulación** emule el los efectos de tomar cada decisión bajo cada condición inicial.
+Además, la decisión de aceptar o rechazar un viaje no es estática; es un **proceso secuencial** en el que cada decisión afecta las oportunidades futuras y por tanto la única manera que tenemos de saber el efecto acumulado al final del día de tomar diferentes decisiones es **crear una simulación** que emule los efectos de tomar cada decisión bajo cada condición inicial.
 
 Por estas razones, este proyecto adopta un marco combinado de **Analítica de Decisión Secuencial** (propuesto por Warren B. Powell, 2022) y el estándar **CRISP-DM** para el desarrollo de modelos de ciencia de datos. Este enfoque permite:
 
@@ -153,23 +177,26 @@ Para manejar eficientemente el gran volumen de datos, se implementó una estrate
 3.  **Base de Datos DuckDB**: Los archivos Parquet se consolidaron en una base de datos **DuckDB** (archivo `my-db.duckdb`), que permite realizar consultas SQL de alto rendimiento sobre datos que no caben en la memoria RAM. A la tabla principal (`NycTrips`) se le añadió una columna calculada, `performance_per_hour`, que representa el ingreso por hora del viaje (`(driver_pay + tips) / (trip_time / 3600)`) [@r_duckdb].
 4.  **Caché con `pins`**: Los resultados intermedios y las muestras de datos procesados se guardaron utilizando el paquete `pins` en formato `qs2`, lo que aceleró el desarrollo y garantizó la reproducibilidad [@r_pins; @qs2].
 
-El tamaño final de la base de datos DuckDB fue de aproximadamente **55.8 GB**.
+El tamaño final de la base de datos DuckDB fue de aproximadamente **55.8 GB**. Todo el entorno de trabajo es reproducible mediante `Dockerfile`, `docker-compose.yml` y el archivo `default.nix` (Nix), que definen las versiones exactas de R y las librerías necesarias.
 
 \newpage
 
 # Metodología: Diseño de la Solución
 
-## Marco de Trabajo Integrado: CRISP-DM y Decisión Secuencial
+## Marco de Trabajo Integrado: CRISP-DM y SDA
 
-El proyecto se guió por un marco metodológico híbrido que combina el estándar de minería de datos CRISP-DM con los principios de la Analítica de Decisión Secuencial [@powell2022sequential; @chapman2000crisp]. Este enfoque permitió estructurar el desarrollo de un modelo predictivo y su integración en un proceso de toma de decisiones optimizado. El siguiente diagrama mapea las 11 fases del proyecto a ambas metodologías:
+El proyecto se guió por un marco metodológico híbrido que combina el estándar de **minería de datos CRISP-DM** con los principios de la **Analítica de Decisión Secuencial** [@powell2022sequential; @chapman2000crisp]. Este enfoque permitió estructurar el desarrollo de un modelo predictivo y su integración en un proceso de toma de decisiones optimizado.
 
-![](figures/01-diagrama-SDA-DS.jpg)
+El siguiente diagrama mapea como se relacionan las fases de ambas metodologías:
+
+![Marco combinado de Analítica de Decisión Secuencial y CRISP-DM](figures/01-diagrama-SDA-DS.jpg){#fig-diagram-method fig-env="figure*"}
 
 ```{r}
-#| label: framework-diagram
+#| label: fig-diagram-method-source
 #| eval: false
 #| out.width: "100%"
-#| fig-cap: "Marco combinado de Analítica de Decisión Secuencial y CRISP-DM\nFuente: Elaboración propia."
+#| fig-cap: "Marco combinado de Analítica de Decisión Secuencial y CRISP-DM"
+#| fig-num: true
 
 DiagrammeR::grViz(
   "
@@ -241,7 +268,9 @@ subgraph cluster_crisp {
 
 ## Abreviaturas Clave
 
-- **ADP (Approximate Dynamic Programming)**: Programación Dinámica Aproximada. Marco para resolver problemas de decisión secuencial en entornos estocásticos.
+
+- **SDA (Sequential Decision Analytics)**: Analítica de Decisiones Secuenciales. Marco conceptual propuesto por Warren B. Powell para modelar y optimizar problemas de decisión que se desarrollan en el tiempo bajo incertidumbre, combinando modelos matemáticos, simulación y aprendizaje automático.
+- **ADP (Approximate Dynamic Programming)**: Programación Dinámica Aproximada. Técnica dentro del marco SDA para resolver problemas de decisión secuencial en entornos estocásticos cuando la programación dinámica exacta es intratable.
 - **CRISP-DM (Cross-Industry Standard Process for Data Mining)**: Estándar de proceso para la minería de datos.
 - **HVFHS (High-Volume For-Hire Services)**: Servicios de Vehículos de Alquiler de Alto Volumen (Uber, Lyft, Juno, Via).
 - **XGBoost (eXtreme Gradient Boosting)**: Algoritmo de *gradient boosting* utilizado para el modelo de clasificación.
@@ -255,6 +284,8 @@ subgraph cluster_crisp {
 ## Definición línea base
 
 Definir la línea base a partir de los datos disponibles es complicado porque estos carecen de un **identificador único** para realizar una estimación directa. Sin embargo, podemos **realizar una simulación** para estimar el valor de la línea base junto con un intervalo de confianza.
+
+\bigskip
 
 La simulación se basa en los siguientes **supuestos** acerca de los conductores de taxi:
 
@@ -278,11 +309,14 @@ La simulación se basa en los siguientes **supuestos** acerca de los conductores
 
 7.  Aceptarán su último viaje después de trabajar 8 horas (el descanso de 30 minutos no se cuenta dentro de las 8 horas).
 
-Después de simular **1,061 condiciones iniciales independientes** (cada una promediada sobre 5 semillas reproducibles), podemos utilizar los resultados de Monte Carlo para inferir la distribución del salario medio diario por hora para cualquier día, podemos confirmar que los ingresos promedio por hora para un conductor de taxi se sitúan entre **\$54.97** y **\$55.21**, con un 95% de confianza, y una media de $55.09 dólares por hora.
+Para generar las **condiciones iniciales** (1.061 combinaciones), se realizó un muestreo aleatorio estratificado por mes, día de la semana y hora del día desde la tabla DuckDB, asegurando una representación equilibrada de distritos (Manhattan, Brooklyn, Queens) y compañías (Uber, Lyft, Juno, Via). Cada condición se simuló con 5 semillas reproducibles para obtener estimaciones robustas.
 
+Después de simular estas condiciones, podemos utilizar los resultados de Monte Carlo para inferir la distribución del salario medio diario por hora. Los ingresos promedio por hora se sitúan entre **\$54.97** y **\$55.21**, con un 95% de confianza, y una media de $55.09 dólares por hora (@fig-baseline-hist).
 
 ```{r}
-#| label: Base line
+#| label: fig-baseline-hist
+#| fig-cap: "Distribución del salario medio por hora en la línea base (simulación Monte Carlo)"
+#| fig-num: true
 
 SimulationHourlyWage <- pin_read(BoardLocal,"SimulationHourlyWage")
 SimulationStartDay <- pin_read(BoardLocal, "SimulationStartDay")
@@ -390,7 +424,6 @@ sim_start_trip_summary <- function(sim_results, sim_start_days) {
   return(sim_results_summary)
 }
 
-
 SimulationHourlyWageSummary <-
   sim_start_trip_summary(SimulationHourlyWage, SimulationStartDay)
 
@@ -410,7 +443,7 @@ SimulationVisData <- SimulationHourlyWageSummary[, .(
   as.data.frame()
 
 attr(SimulationVisData, "class") <- c("infer", "data.frame")
-attr(SimulationVisData, "type") <- "bootstrap" # satisfies the switch()
+attr(SimulationVisData, "type") <- "bootstrap"
 
 visualize(SimulationVisData) +
   shade_ci(
@@ -430,7 +463,9 @@ visualize(SimulationVisData) +
       SimulationInterval[1L][[1L]] - 1.8,
       SimulationInterval[1L][[2L]] + 1.8
     ),
-    label = unlist(SimulationInterval) |> comma(accuracy = 0.01)
+    label = unlist(SimulationInterval) |> comma(accuracy = 0.01),
+    color = "white",
+    fontface = "bold"
   ) +
   labs(title = "Distribución Del Salario Medio Por Hora", 
        subtitle = "Luego de completar al menos **8 horas** de trabajo",
@@ -441,7 +476,9 @@ visualize(SimulationVisData) +
     panel.grid.minor.y = element_blank(),
     panel.grid.major.y = element_blank(),
     plot.title = element_text(face = "bold"),
-    plot.subtitle = element_markdown()
+    plot.subtitle = element_markdown(),
+    plot.title.position = "plot",
+    axis.title = element_text(face = "bold")
   )
 ```
 
@@ -475,7 +512,22 @@ Para predecir si un viaje en oferta pertenece al **25% más rentable** de las al
 
 ### Etiquetado con Lookahead
 
-Siguiendo la metodología ADP, se generó la variable objetivo `take_current_trip` para cada viaje histórico. Para un viaje ofertado en el tiempo $t$, se simuló el conjunto de alternativas $\mathcal{C}_t$ que un conductor habría podido encontrar en los siguientes 15 minutos. El viaje actual fue etiquetado como **aceptable (1)** si su rendimiento (`performance_per_hour`) superaba el percentil 75 de los rendimientos de todas las alternativas en $\mathcal{C}_t$.
+Siguiendo la metodología ADP, se generó la variable objetivo `take_current_trip` para cada viaje histórico. Para un viaje ofertado en el tiempo $t$, se construyó el conjunto de alternativas $\mathcal{C}_t$ que un conductor habría podido encontrar en los siguientes 15 minutos. Para que un viaje futuro sea considerado una alternativa válida, debe cumplir **exactamente** las mismas restricciones de la simulación base:
+
+1. **Misma compañía**: `hvfhs_license_num` igual.
+2. **Compatibilidad WAV**: Un conductor en vehículo accesible (`wav_match_flag == "Y"`) puede ver todos los viajes; un conductor estándar solo ve viajes con `wav_request_flag == "N"`.
+3. **Ventana temporal**: La hora de solicitud debe estar entre 3 segundos (retraso por rechazo) y 15 minutos después de la solicitud original.
+4. **Expansión de radio**: La distancia desde la zona actual sigue la misma función escalonada que en la simulación base (1 milla al minuto 1, 3 millas al minuto 3, etc.).
+
+El rendimiento (`perf`) de cada viaje se calcula como:
+
+$$
+\text{perf} = \frac{\text{driver\_pay} + \text{tips}}{(\text{trip\_time} + \text{waiting\_secs}) / 3600}
+$$
+
+donde `waiting_secs` es el tiempo de espera desde la decisión hasta la solicitud del viaje futuro, penalizando así el coste de oportunidad de estar sin viaje.
+
+El viaje actual se etiqueta como **aceptable (1)** si su rendimiento supera el percentil 75 de los rendimientos de todas las alternativas en $\mathcal{C}_t$:
 
 $$
 \text{take\_current\_trip}_i = 
@@ -485,14 +537,19 @@ $$
 \end{cases}
 $$
 
+Este proceso de etiquetado, implementado en paralelo con `future`, garantiza que las etiquetas sean coherentes con el modelo de incertidumbre de la simulación base.
 
 ### Entrenamiento y Selección del Modelo
 
-Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento económico al traducir su precisión estadística en beneficio monetario, principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía). Se realizó una **optimización Bayesiana** de hiperparámetros para refinar el modelo, logrando una mejora en el *Brier Score* de 0.150 a **0.1443**.
+Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento económico al traducir su precisión estadística en beneficio monetario, principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía).
+
+Se realizó una **optimización Bayesiana** de hiperparámetros para refinar el modelo, logrando una mejora en el *Brier Score* de 0.150 a **0.1443**. El Brier Score fue la métrica principal de calibración, ya que el objetivo final no es la clasificación en sí, sino el beneficio económico derivado de la política; por ello, la **evaluación final se realiza mediante simulación**.
 
 ```{r}
-#| label: Model Comparation Summary
-#| fig-cap: "Fuente: Elaboración propia."
+#| label: fig-model-comparison
+#| fig-cap: "Comparación del Brier Score de los modelos evaluados; XGBoost optimizado es el más efectivo"
+#| fig-num: true
+#| fig-height: 4
 
 XgboostOptimized <-
   pin_read(BoardLocal, name = "MetricsXgboostHistory") |>
@@ -529,9 +586,9 @@ pin_read(
   labs(
     title = paste0(
       highlight_text("Xgboost"),
-      "demostró ser el modelo **más efectivo**"
+      "**demostró ser el modelo más efectivo**"
     ),
-    subtitle = "Luego de usar **Optimizacion Bayesiana** para definir hiperparámetros",
+    subtitle = "Luego de usar **Optimización Bayesiana** para definir hiperparámetros",
     y = "Brier Score",
     x = "Modelos Entrenados"
   ) +
@@ -548,11 +605,13 @@ pin_read(
 
 ### Variables Más Importantes
 
-Al utilizar la métrica de importancia definida por los diferentes arboles de decisión creados en el modelo pudimos confirmar que la ingeniería de factores empleada fue exitosa, ya que el modelo pudo identificar que las variables más importantes a tomar en cuenta antes de tomar una decisión son `tip_time` y `driver_pay`, los cualesn luego están seguidos por 41 variables que resultados de agregar variable del Burau de estadísticas (`PU_census`) y las 25 variabes que resultarón de llevar `request_datetime` a otras representaciones más útiles para el modelo.
+Al utilizar la métrica de importancia definida por los diferentes árboles de decisión creados en el modelo pudimos confirmar que la ingeniería de factores empleada fue exitosa, ya que el modelo pudo identificar que las variables más importantes a tomar en cuenta antes de tomar una decisión son `trip_time` y `driver_pay`, seguidas por 41 variables resultantes de agregar variables del Buró de Estadísticas (`PU_census`) y las 25 variables que resultaron de llevar `request_datetime` a otras representaciones más útiles para el modelo (@fig-feature-importance).
 
 ```{r}
-#| label: Model Importancia de Factores
-#| fig-cap: "Fuente: Elaboración propia."
+#| label: fig-feature-importance
+#| fig-cap: "Contribución de los grupos de variables al poder predictivo (Gain) y cobertura (Cover)"
+#| fig-height: 5.5
+#| fig-num: true
 
 XgboostFeatureImportance <- 
   pin_read(BoardLocal, "XgboostWfFitted") |>
@@ -592,9 +651,9 @@ XgboostFeatureImportance[
                      breaks = breaks_width(0.05)) +
   expand_limits(x = -0.03) +
   labs(
-    title = paste0("Las ", 
+    title = paste0("**Las** ", 
                    highlight_text("4 variables"),
-                   "más relevantes presentan una contribución **mayor 10%**"),
+                   "**más relevantes presentan una contribución mayor 10%**"),
     subtitle = "*Luego de sumar el efecto individual de las variables derivadas*",
     x = "Cover (%) - % de observaciones afectadas",
     y = "Gain (%) - Contribución al poder predictivo"
@@ -603,7 +662,7 @@ XgboostFeatureImportance[
   theme(
     panel.grid.minor.y = element_blank(),
     panel.grid.minor.x = element_blank(),
-    plot.title = element_markdown(size = 15),
+    plot.title = element_markdown(size = 13.5),
     plot.subtitle = element_markdown(size = 13),
     plot.title.position = "plot",
     axis.text.x.top = element_text(angle = 90, hjust = 0),
@@ -638,13 +697,17 @@ $$
 
 ### Optimización del Umbral de Decisión ($\tau$)
 
-Un hallazgo crucial fue que el umbral de decisión $\tau$ que maximiza la precisión estadística (ej. Brier Score) no es el que maximiza el beneficio económico en la simulación dinámica. La razón es que el costo de un falso negativo (rechazar un viaje bueno) es mucho mayor que el de un falso positivo (aceptar un viaje malo), especialmente considerando el tiempo de espera. La optimización económica en la simulación arrojó un umbral óptimo **$\tau^* = 0.9$**, que es mucho más alto que el 0.5 típico. Esto significa que **los conductores deben ser extremadamente selectivos, aceptando solo aquellos viajes con un 90% o más de probabilidad de ser de alto valor**.
+Un hallazgo crucial fue que el umbral de decisión $\tau$ que maximiza la precisión estadística (ej. Brier Score) no es el que maximiza el beneficio económico en la simulación dinámica. La razón es que el costo de un falso negativo (rechazar un viaje bueno) es mucho mayor que el de un falso positivo (aceptar un viaje malo), especialmente considerando el tiempo de espera. La optimización económica en la simulación arrojó un umbral óptimo **$\tau^* = 0.9$**, que es mucho más alto que el 0.5 típico (@fig-threshold-opt). Esto significa que **los conductores deben ser extremadamente selectivos, aceptando solo aquellos viajes con un 90% o más de probabilidad de ser de alto valor**.
+
+Este umbral se obtuvo bajo el **supuesto de abundancia** de viajes (más pasajeros que conductores). En un entorno real con mayor competencia, el valor óptimo podría **reducirse**. 
 
 La simulación de la política de aceptación/rechazo (con $\tau^* = 0.9$) en los datos de 2022-2023 arrojó un aumento en el salario medio por hora de **$55.09 (línea base) a $61.25**, un incremento de **$6.16 por hora**.
 
 ```{r}
-#| label: Retorno por Threshold
-#| fig-cap: "Fuente: Elaboración propia."
+#| label: fig-threshold-opt
+#| fig-cap: "Rendimiento del salario medio por hora en función del umbral τ; el máximo se alcanza en τ=0.9"
+#| fig-num: true
+#| fig-height: 4
 
 SimResultsSummary <-
   pin_list(BoardLocal) |>
@@ -686,8 +749,8 @@ ggplot(HourlyWageByTau, aes(tau_used, mean_wage)) +
   scale_x_continuous(breaks = breaks_width(0.1)) +
   scale_y_continuous(breaks = breaks_width(1), label = dollar_format(1)) +
   labs(
-    title = "Selecionar como threshold 0.9 nos dá los mejores retornos",
-    subtitle = "Luego de ese valor los beneficions se reducen",
+    title = "Seleccionar como threshold 0.9 nos da los mejores retornos",
+    subtitle = "Luego de ese valor los beneficios se reducen",
     x = "Threshold",
     y = "Ganancia por hora al final del día"
   ) +
@@ -703,16 +766,19 @@ ggplot(HourlyWageByTau, aes(tau_used, mean_wage)) +
 
 ## Identificación Tiempo Optimo Para Iniciar Jornada
 
-Para poder confirmar si alguno de los factores definidos al inicio de la jornado podían explicar cambios en el valor persivido por los taxistas al final de la jornada simulamos por **14 días** 65,856 combinaciones de días diferentes, con el fin de validar el efecto que puede tener:
+Para poder confirmar si alguno de los factores definidos al inicio de la jornada podían explicar cambios en el valor percibido por los taxistas al final de la jornada, simulamos por **14 días** 65,856 combinaciones de días diferentes, con el fin de validar el efecto que puede tener:
 
 - La compañía con la que trabaja el taxista
 - La zona en la que inicia a trabajar
 - El día de la semana y la hora del día
 
-Al graficar los resultados de la simulación podemos ver que efectivamentem la distribución presenta y la larga cola a la derecha, lo que quiere decir que alguno días fueron especialmente rentable registrando días de hasta **$120** la hora lo cual serían como ganar **$960** por un día de trabajo.
+Al graficar los resultados de la simulación (@fig-start-dist) podemos ver que la distribución presenta una larga cola a la derecha, lo que quiere decir que algunos días fueron especialmente rentables, registrando días de hasta **$120** la hora, lo cual serían como ganar **$960** por un día de trabajo.
 
 ```{r}
-#| label: Start Simulations
+#| label: fig-start-dist
+#| fig-cap: "Distribución del salario medio por hora para las 65.856 combinaciones de inicio; el 10% superior supera los $75 por hora"
+#| fig-num: true
+#| fig-height: 4
 
 InitialZoneSimResults <- pin_read(
   BoardLocal,
@@ -723,7 +789,6 @@ FinalPfaMeans <- pin_read(
   BoardLocal,
   "FinalPfaMeans"
 )
-
 
 TopDailyHourlyWage <- quantile(
   InitialZoneSimResults$daily_hourly_wage_mean,
@@ -739,18 +804,7 @@ InitialZoneSimResults[,
     factor(levels = c("no", "yes"))
 ]
 
-
 BreaksToPlot <- c(seq(20, 200, 10), unname(FinalPfaMeans)) |> setdiff(60L)
-
-highlight_text <- function(x) {
-  paste0(
-    " <span style='color:",
-    Params$ColorHighlight,
-    ";'>**",
-    x,
-    "**</span> "
-  )
-}
 
 ggplot(
   InitialZoneSimResults,
@@ -784,23 +838,27 @@ ggplot(
   theme_minimal(base_size = 12,
                 base_family = Params$BaseFontFamily) +
   theme(
-    plot.title = element_markdown(size = 12),
+    plot.title = element_markdown(size = 14),
     axis.title = element_text(face = "bold"),
+    plot.title.position = "plot",
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank(),
     legend.position = "none"
   )
 ```
 
-Luego trazamos el top 10% de los días simulados el modelo de arbol pudo identicar 4 patrones importantes:
+Luego, al trazar el top 10% de los días simulados con un modelo de árbol de decisión, se pudieron identificar 4 patrones importantes (@fig-start-tree):
 
 - Sólo los conductores de **Uber** alcanzan los mejores beneficios
-- El **mejor horario** para iniciar a trabajar es en la tarde noche
-- Los lunes y viernes los días no llegan ser tan rentables
-- La **zona de inicio** no afectan los resultados al final del día
+- El **mejor horario** para iniciar a trabajar es en la tarde-noche
+- Los lunes y viernes los días no llegan a ser tan rentables
+- La **zona de inicio** no afecta los resultados al final del día
 
 ```{r}
-#| label: Interpretacion del modelo arbol
+#| label: fig-start-tree
+#| fig-cap: "Patrones identificados por el árbol de decisión para el top 10% de días: Uber, horario nocturno, evitar lunes y viernes"
+#| fig-num: true
+#| fig-height: 4.5
 
 Weekdays <- c(
   "Domingo",
@@ -853,14 +911,18 @@ pin_read(BoardLocal, "TreeResultsToExplain") |>
     axis.text = element_blank(),
     axis.title = element_blank(),
     plot.title = element_markdown(),
-    plot.subtitle = element_markdown()
+    plot.subtitle = element_markdown(),
+    plot.title.position = "plot"
   )
 ```
 
-Al comparar los resultados de aplicar las estregías identificadas por el modelo de arbol pudimos crear una política que mejora los resutados del la línea base y de los de la política de aceptar/rechajar viajes basado en el modelo de Xgboost.
+Al comparar los resultados de aplicar las estrategias identificadas por el modelo de árbol, pudimos crear una política que mejora los resultados de la línea base y los de la política de aceptar/rechazar viajes basado en el modelo de XGBoost (@fig-final-policy).
 
 ```{r}
-#| label: Resultados de aplicar inicio
+#| label: fig-final-policy
+#| fig-cap: "Comparación de estrategias: la política completa (árbol + XGBoost) alcanza el mayor salario medio por hora"
+#| fig-num: true
+#| fig-height: 4
 
 FinalPfaMeansAfterStart <- pin_read(
   BoardLocal,
@@ -874,8 +936,8 @@ FinalPfaResultsSummary <- pin_read(
 
 PolicyLevels <- c(
   "Aceptar todos los viajes",
-  "Acceptar viajes basado en política",
-  "Iniciar jornanada según el modelo de arbol"
+  "Aceptar viajes basado en política",
+  "Política + Ajustar inicio"
 )
 
 PolicyLevelsFillColors <- c(
@@ -885,30 +947,42 @@ PolicyLevelsFillColors <- c(
 )
 setattr(PolicyLevelsFillColors, "names", PolicyLevels)
 
+FinalPfaResultsSummary[, strategy := fcase(
+  strategy == "Accept All Trips",
+  PolicyLevels[1L],
+  strategy == "Accept Based On Policy",
+  PolicyLevels[2L],
+  strategy == "Setting Start Time",
+  PolicyLevels[3L]
+) ]
+
+FinalPfaResultsSummary[, strategy := factor(strategy, PolicyLevels)]
+
 ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
   geom_boxplot(aes(fill = strategy), width = 0.5) +
   geom_hline(yintercept = FinalPfaMeansAfterStart[3L], linetype = 2) +
   scale_fill_manual(
     values = PolicyLevelsFillColors
   ) +
-  scale_y_continuous(breaks = breaks_width(5), label = dollar_format(1)) +
+  scale_y_continuous(breaks = breaks_width(10), label = dollar_format(1)) +
   labs(
     title = paste0(
       highlight_text(PolicyLevels[3L]),
-      "**junto al modelo de Xgboost en la mejor estregia**"
+      "**es la mejor estrategia**"
     ),
     subtitle = paste0(
       "El nuevo promedio es cercano a **",
       dollar(FinalPfaMeansAfterStart[3L], accuracy = 1),
       "** confirmando resultados estables"
     ),
-    x = "Strategy Implemented",
-    y = "Mean Hourly Wage"
+    x = "Estrategía Implementada",
+    y = "Ganancia por hora al final del día"
   ) +
   theme_light(base_family = Params$BaseFontFamily) +
   theme(
     plot.title = element_markdown(size = 14, family = Params$BaseFontFamily),
     plot.subtitle = element_markdown(size = 12, family = Params$BaseFontFamily),
+    plot.title.position = "plot",
     axis.title = element_text(face = "bold"),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
@@ -917,15 +991,17 @@ ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
   )
 ```
 
-
 \newpage
 
 # Evaluación del Rendimiento del Modelo
 
-El verdadero valor del modelo se mide por el **aumento en el salario por hora** derivado de su implementación en la simulación. El siguiente gráfico muestra la evolución de la política a lo largo de los meses de 2024 (datos no vistos durante el entrenamiento), confirmando la consistencia de los resultados.
+El verdadero valor del modelo se mide por el **aumento en el salario por hora** derivado de su implementación en la simulación. La @fig-policy-performance muestra la evolución de la política a lo largo de los meses de 2024 (datos no vistos durante el entrenamiento), confirmando la consistencia de los resultados.
 
 ```{r}
-#| label: policy-performance-plot
+#| label: fig-policy-performance
+#| fig-cap: "Comparación mensual del salario medio por hora entre la línea base y la política completa en 2024 (datos fuera de muestra)"
+#| fig-num: true
+#| fig-height: 4
 
 SimulationHourlyWage2024 <- pin_read(BoardLocal, "SimulationHourlyWage2024")
 FinalStartTimeResults2024 <- pin_read(BoardLocal, "FinalStartTimeResults2024")
@@ -943,7 +1019,6 @@ FinalPfaMeansAfterStart2024 <-
     .(daily_hourly_wage_mean = mean(daily_hourly_wage_mean)),
     keyby = "strategy"
   ][, setattr(daily_hourly_wage_mean, "names", as.character(strategy))]
-
 
 PolicyLevelsFillColors <- c(
   Params$ColorGray,
@@ -989,7 +1064,7 @@ ggplot(
   ) +
   annotate(
     "text",
-    x = max(MonthlySummary$month) + days(10),
+    x = max(MonthlySummary$month) + days(15),
     y = TargetMean + 0.6,
     label = paste0(
       "2024 Promedio: ",
@@ -1038,7 +1113,7 @@ ggplot(
       ";'>nueva política de aceptación</span> demuestra mejores resultados**"
     ),
     subtitle = paste0(
-      "La ganancia se mantiene en **$69 por hora** mientras que supera ampliamente la estretegía inicial"
+      "La ganancia se mantiene en **$69 por hora** mientras que supera ampliamente la estrategia inicial"
     ),
     x = "Mes",
     y = "Ganancia por hora al final del día"
@@ -1090,13 +1165,19 @@ Los hallazgos de este estudio se traducen en las siguientes recomendaciones acci
 3.  **Selección de Viajes**: Ser **extremadamente selectivo**. Aceptar solo los viajes que el modelo XGBoost clasifique con una **probabilidad superior al 90%** de pertenecer al cuartil más rentable de las alternativas disponibles en los próximos 15 minutos. Rechazar el resto, incluso si implica esperar unos minutos.
 4.  **Zona de Inicio**: La zona donde se comienza la jornada tiene un impacto insignificante en comparación con la plataforma y el horario. No es un factor crítico para la decisión.
 
+\newpage
+
 ## Limitaciones y Consideraciones Éticas
 
 Es crucial reconocer las limitaciones y los posibles impactos no deseados de este análisis:
 
+\bigskip
+
 - **Ausencia de Identificador de Conductor**: La principal limitación es que los datos no proporcionan un identificador único para los conductores, lo que impide modelar con exactitud su comportamiento histórico y la dinámica de oferta y demanda. La simulación, aunque robusta, se basa en suposiciones sobre el comportamiento del conductor y la disponibilidad de viajes.
 - **Riesgo de Saturación y Congestión**: Si la mayoría de los conductores adoptaran la política de ser extremadamente selectivos, las zonas más rentables podrían saturarse, reduciendo la oportunidad para todos y aumentando la congestión en esas áreas. El modelo supone que siempre hay más pasajeros que conductores (mercado de demanda).
 - **Sesgo en la Selección**: Una aplicación generalizada podría llevar a una reducción en la calidad del servicio en áreas o momentos menos rentables, afectando a pasajeros que dependen del servicio.
+
+\bigskip
 
 El proyecto debe considerarse como una **demostración metodológica** de cómo la ciencia de datos puede optimizar decisiones individuales en un ecosistema complejo, y no como una recomendación prescriptiva final sin una consideración cuidadosa de estos factores sistémicos.
 
