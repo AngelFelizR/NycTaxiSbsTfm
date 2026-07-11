@@ -47,7 +47,7 @@ format:
         {\large\bfseries Trabajo Fin De Máster \par}
         \vfill
         {\large Santo Domingo, República Dominicana\par}
-        {\large \today \par}
+        {\large 10 de julio de 2026 \par}
         \end{titlepage}
         \newpage
 bibliography: references.bib
