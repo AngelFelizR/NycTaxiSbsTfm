@@ -6,11 +6,11 @@ execute:
 format:
   pdf:
     pdf-engine: xelatex
-    mainfont: "DejaVu Sans"
-    linestretch: 1.5
     documentclass: article
+    mainfont: "DejaVu Sans"
     papersize: letter
     fontsize: 12pt
+    linestretch: 1.5
     toc: true
     toc-depth: 2
     number-sections: true
@@ -19,37 +19,7 @@ format:
     fig-dpi: 350
     geometry:
       - margin=0.6in
-    include-in-header:
-      text: |
-        \usepackage{fancyhdr}
-        \usepackage{graphicx}
-        \usepackage{caption}
-    include-before-body:
-      text: |
-        \begin{titlepage}
-        \centering
-        {\includegraphics[width=0.4\textwidth]{logo-sbs.jpg}\par}
-        \vspace{1cm}
-        {\large\bfseries Optimización de Ingresos para Taxistas de Mediante el Análisis de Datos de Vehículos de Alquiler de Alta Demanda \par}
-        \vspace{1cm}
-        {\large Caso de estudio: NYC High-Volume For-Hire Vehicles\newline(Uber, Lyft, Juno, Via)\par}
-        \vspace{1cm}
-        {\large Sustentante \par}
-        {\large\bfseries Ángel Esteban Féliz Ferreras \par}
-        \vspace{1cm}
-        {\large Maestría \par}
-        {\large\bfseries Ciencia de Datos \par}
-        \vspace{1cm}
-        {\large Profesor \par}
-        {\large\bfseries Jaime Muñoz Sarciada \par}
-        \vspace{1cm}
-        {\large Asignatura \par}
-        {\large\bfseries Trabajo Fin De Máster \par}
-        \vfill
-        {\large Santo Domingo, República Dominicana\par}
-        {\large 10 de julio de 2026 \par}
-        \end{titlepage}
-        \newpage
+    include-before-body: portada.tex
 bibliography: references.bib
 csl: apa.csl
 lang: es
@@ -309,7 +279,7 @@ La simulación se basa en los siguientes **supuestos** acerca de los conductores
 
 7.  Aceptarán su último viaje después de trabajar 8 horas (el descanso de 30 minutos no se cuenta dentro de las 8 horas).
 
-Para generar las **condiciones iniciales** (1.061 combinaciones), se realizó un muestreo aleatorio estratificado por mes, día de la semana y hora del día desde la tabla DuckDB, asegurando una representación equilibrada de distritos (Manhattan, Brooklyn, Queens) y compañías (Uber, Lyft, Juno, Via). Cada condición se simuló con 5 semillas reproducibles para obtener estimaciones robustas.
+Para generar las **condiciones iniciales** (1,061 combinaciones), se realizó un muestreo aleatorio estratificado por mes, día de la semana y hora del día desde la tabla DuckDB, asegurando una representación equilibrada de distritos (Manhattan, Brooklyn, Queens) y compañías (Uber, Lyft, Juno, Via). Cada condición se simuló con 5 semillas reproducibles para obtener estimaciones robustas.
 
 Después de simular estas condiciones, podemos utilizar los resultados de Monte Carlo para inferir la distribución del salario medio diario por hora. Los ingresos promedio por hora se sitúan entre **\$54.97** y **\$55.21**, con un 95% de confianza, y una media de $55.09 dólares por hora (@fig-baseline-hist).
 
@@ -490,9 +460,12 @@ El preprocesamiento de datos fue una fase extensa que combinó transformaciones 
 
 ### Variables Espaciales
 
-- **Variables TLC**: Se incorporaron las variables categóricas de origen (`PULocationID`) y destino (`DOLocationID`). Dada su alta cardinalidad (más de 200 zonas), se aplicaron técnicas de codificación y se enriquecieron con sus correspondientes distritos (`borough`) y zona de servicio.
-- **Densidad de Puntos de Interés (OSM)**: Se descargaron datos de OpenStreetMap para los distritos de interés utilizando los paquetes `osmdata` y `sf`. Para cada zona TLC, se calcularon métricas de densidad para diferentes categorías de puntos (ej. `amenity`, `shop`), líneas (ej. `highway`) y polígonos (ej. `landuse`). Estas métricas se calcularon por milla cuadrada.
-- **Datos Socioeconómicos (Censo de EE. UU.)**: Se utilizó `tidycensus` para descargar variables de la ACS 2022 y el Censo Decenal 2020 a nivel de sector censal. Mediante un proceso de unión espacial (*spatial join*), se agregaron estas variables a las zonas TLC, calculando la media ponderada por área. El análisis de componentes principales y la selección de variables mediante **NLP y clustering** redujeron un espacio de ~160.000 variables a las más relevantes para la movilidad.
+Dada la alta cardinalidad de las variables categóricas de origen (`PULocationID`) y destino (`DOLocationID`) (cerca de 200 zonas TLC), estas fueron sustituidas por variables derivadas de información geoespacial y socioeconómica asociada a cada zona.
+
+* **Información geoespacial (OpenStreetMap)**: Se descargaron datos de OpenStreetMap utilizando los paquetes `osmdata` y `sf` para Manhattan, Brooklyn y Queens. Para cada zona TLC se calcularon variables derivadas de diferentes tipos de elementos geográficos: densidad de puntos (por ejemplo, `amenity` y `shop`), longitud de líneas (por ejemplo, `highway`) y proporción de área cubierta por polígonos (por ejemplo, `landuse`). Todas las métricas se normalizaron por el área de la zona para hacer comparables zonas de distintos tamaños. Tras el proceso de validación y selección, se conservaron **22 variables geoespaciales**.
+
+> **Información socioeconómica (Censo de EE. UU.)**: Se utilizaron `tidycensus` y datos de la **American Community Survey (ACS) 2022** y del **Censo Decenal 2020** para obtener variables a nivel de sector censal. Estas variables se agregaron a las zonas TLC mediante una unión espacial, calculando una media ponderada según la proporción del área de cada sector censal dentro de la zona. Dado el gran número de variables disponibles (aproximadamente **160,000**), primero se realizó una selección automática basada en técnicas de procesamiento de lenguaje natural (NLP). En particular, se agruparon variables con descripciones similares utilizando la **distancia de Jaccard** y detección de comunidades mediante **modularidad**, y posteriormente se identificaron las palabras más representativas de cada grupo mediante **TF-IDF**, lo que permitió seleccionar las categorías temáticas más relevantes y reducir el conjunto a **1,433 variables**. Finalmente, se conservaron únicamente aquellas que mostraban una mayor diferencia entre las medianas de los viajes aceptados y rechazados, obteniendo un conjunto final de **41 variables socioeconómicas**.
+
 
 ### Variables Temporales
 
@@ -516,7 +489,7 @@ Siguiendo la metodología ADP, se generó la variable objetivo `take_current_tri
 
 1. **Misma compañía**: `hvfhs_license_num` igual.
 2. **Compatibilidad WAV**: Un conductor en vehículo accesible (`wav_match_flag == "Y"`) puede ver todos los viajes; un conductor estándar solo ve viajes con `wav_request_flag == "N"`.
-3. **Ventana temporal**: La hora de solicitud debe estar entre 3 segundos (retraso por rechazo) y 15 minutos después de la solicitud original.
+3. **Ventana temporal**: La hora de solicitud debe estar entre 3 segundos (tiempo necesario para rechazar el viaje actual) y 15 minutos después de la solicitud original.
 4. **Expansión de radio**: La distancia desde la zona actual sigue la misma función escalonada que en la simulación base (1 milla al minuto 1, 3 millas al minuto 3, etc.).
 
 El rendimiento (`perf`) de cada viaje se calcula como:
@@ -541,7 +514,7 @@ Este proceso de etiquetado, implementado en paralelo con `future`, garantiza que
 
 ### Entrenamiento y Selección del Modelo
 
-Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento económico al traducir su precisión estadística en beneficio monetario, principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía).
+Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía).
 
 Se realizó una **optimización Bayesiana** de hiperparámetros para refinar el modelo, logrando una mejora en el *Brier Score* de 0.150 a **0.1443**. El Brier Score fue la métrica principal de calibración, ya que el objetivo final no es la clasificación en sí, sino el beneficio económico derivado de la política; por ello, la **evaluación final se realiza mediante simulación**.
 
@@ -653,7 +626,7 @@ XgboostFeatureImportance[
   labs(
     title = paste0("**Las** ", 
                    highlight_text("4 variables"),
-                   "**más relevantes presentan una contribución mayor 10%**"),
+                   "**más relevantes presentan una contribución mayor al 10%**"),
     subtitle = "*Luego de sumar el efecto individual de las variables derivadas*",
     x = "Cover (%) - % de observaciones afectadas",
     y = "Gain (%) - Contribución al poder predictivo"
@@ -676,19 +649,21 @@ Para evaluar el impacto real de las políticas, se implementó un **motor de sim
 
 ### Modelo Matemático de la Simulación
 
-**Variables de Estado (`S_t^n`)**: Representan la situación del conductor en un momento dado.
+**Variables de Estado ($S_t^n$)**: Representan la situación del conductor en un momento dado.
+
 - `Current_Time`: Fecha y hora actual.
 - `Current_Zone`: Zona TLC donde se encuentra el conductor.
 - `Taken_Break`: Si ya ha tomado su descanso de 30 minutos.
 - `Trip_Time_Limit` y `Trip_Dist_Limit`: Ventana de búsqueda (tiempo y distancia).
 
-**Decisión (`x_t`)**: Bajo la política óptima, la decisión se basa en la probabilidad estimada por el modelo XGBoost:
+**Decisión ($x_t$)**: Bajo la política óptima, la decisión se basa en la probabilidad estimada por el modelo XGBoost:
+
 - $x_t = 1$ (Aceptar) si $\hat{p}_t(S_t) \ge \tau$, donde $\tau$ es un umbral de decisión.
 - $x_t = 0$ (Rechazar) en caso contrario.
 
-**Información Exógena (`W_{t+1}^n`)**: Después de aceptar un viaje, el siguiente estado se actualiza con los datos reales del viaje (`Trip_End_Time`, `Trip_End_Zone`, `Trip_Earning`).
+**Información Exógena ($W_{t+1}^n$)**: Después de aceptar un viaje, el siguiente estado se actualiza con los datos reales del viaje (`Trip_End_Time`, `Trip_End_Zone`, `Trip_Earning`).
 
-**Función de Transición (`S^M`)**: Actualiza el estado del conductor. Si se acepta un viaje, se avanza en el tiempo y la ubicación; si se rechaza, se expande el radio de búsqueda y la ventana de tiempo.
+**Función de Transición ($S^M$)**: Actualiza el estado del conductor. Si se acepta un viaje, se avanza en el tiempo y la ubicación; si se rechaza, se expande el radio de búsqueda y la ventana de tiempo.
 
 **Función Objetivo**: Maximizar el salario medio por hora de la jornada simulada:
 $$
@@ -922,7 +897,7 @@ Al comparar los resultados de aplicar las estrategias identificadas por el model
 #| label: fig-final-policy
 #| fig-cap: "Comparación de estrategias: la política completa (árbol + XGBoost) alcanza el mayor salario medio por hora"
 #| fig-num: true
-#| fig-height: 4
+#| fig-height: 4.5
 
 FinalPfaMeansAfterStart <- pin_read(
   BoardLocal,
@@ -1001,7 +976,7 @@ El verdadero valor del modelo se mide por el **aumento en el salario por hora** 
 #| label: fig-policy-performance
 #| fig-cap: "Comparación mensual del salario medio por hora entre la línea base y la política completa en 2024 (datos fuera de muestra)"
 #| fig-num: true
-#| fig-height: 4
+#| fig-height: 4.5
 
 SimulationHourlyWage2024 <- pin_read(BoardLocal, "SimulationHourlyWage2024")
 FinalStartTimeResults2024 <- pin_read(BoardLocal, "FinalStartTimeResults2024")
