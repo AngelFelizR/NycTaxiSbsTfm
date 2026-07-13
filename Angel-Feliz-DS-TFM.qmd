@@ -126,7 +126,7 @@ La fuente principal de datos son los registros de viajes de la Comisión de Taxi
 Para este proyecto, se utilizaron los datos de los años **2022 y 2023**, que comprenden aproximadamente **55 GB** en formato Parquet. El conjunto de datos incluye información detallada de cada viaje, como:
 
 - **Identificador de la licencia de la base** (`hvfhs_license_num`): Indica la plataforma (HV0002: Juno, HV0003: Uber, HV0004: Via, HV0005: Lyft).
-- **Fechas y tiempos**: `request_datetime`, `on_scene_datetime`, `pickup_datetime`, `dropoff_datetime`.
+- **Fechas y tiempos**: `request_datetime`, `on_scene_datetime`, `pickup_datetime` \newline y `dropoff_datetime`.
 - **Ubicaciones**: `PULocationID` y `DOLocationID` (códigos de zonas TLC de origen y destino).
 - **Características del viaje**: `trip_miles` (millas), `trip_time` (segundos), `tolls` (peajes), `airport_fee`.
 - **Información económica**: `driver_pay` (pago al conductor sin comisiones), `tips` (propinas).
@@ -135,8 +135,8 @@ Adicionalmente, se utilizaron datos complementarios:
 
 - **Tabla de Zonas TLC** (`taxi_zone_lookup.csv`): Mapea los `LocationID` a los nombres de zona y distrito.
 - **Shapefile de Zonas TLC** (`taxi_zones.zip`): Para análisis geoespacial de las zonas.
-- **Datos del Censo de EE. UU.**: Variables demográficas y socioeconómicas a nivel de sector censal para los distritos de interés. Se utilizaron tablas de la Encuesta sobre la Comunidad Estadounidense (ACS) 2022 y el Censo Decenal 2020 [@tidycensus2026].
-- **Datos de OpenStreetMap**: Enriquecemos los datos con características geoespaciales derivadas de OpenStreetMap (OSM) para proporcionar una visión más profunda de cada zona [@osmdata2017].
+- **Datos del Censo de EE. UU.**: Variables demográficas y socioeconómicas a nivel de sector censal para los distritos de interés. Se utilizaron tablas de la Encuesta sobre la Comunidad Estadounidense (ACS) 2022 y el Censo Decenal 2020.
+- **Datos de OpenStreetMap**: Enriquecemos los datos con características geoespaciales derivadas de OpenStreetMap (OSM) para proporcionar una visión más profunda de cada zona.
 
 ## Gestión de Datos y Estrategia de Almacenamiento
 
@@ -146,6 +146,7 @@ Para manejar eficientemente el gran volumen de datos, se implementó una estrate
 2.  **Almacenamiento en Particiones**: Los archivos Parquet se organizaron en una estructura de carpetas particionada por `year=` y `month=` para optimizar las consultas.
 3.  **Base de Datos DuckDB**: Los archivos Parquet se consolidaron en una base de datos **DuckDB** (archivo `my-db.duckdb`), que permite realizar consultas SQL de alto rendimiento sobre datos que no caben en la memoria RAM. A la tabla principal (`NycTrips`) se le añadió una columna calculada, `performance_per_hour`, que representa el ingreso por hora del viaje (`(driver_pay + tips) / (trip_time / 3600)`) [@r_duckdb].
 4.  **Caché con `pins`**: Los resultados intermedios y las muestras de datos procesados se guardaron utilizando el paquete `pins` en formato `qs2`, lo que aceleró el desarrollo y garantizó la reproducibilidad [@r_pins; @qs2].
+5.  **Procesamiento en Memoria con `data.table`**: Una vez extraídos los datos desde DuckDB o recuperados desde la caché, las operaciones de manipulación, agregación y transformación de grandes volúmenes de datos en memoria se resolvieron mediante `data.table` [@r_data_table]. Esta librería resultó fundamental para el motor de simulación Monte Carlo y el procesamiento de los resultados intermedios, ya que permite realizar filtrados, uniones y agrupaciones de manera altamente eficiente, reduciendo significativamente los tiempos de cómputo durante las iteraciones del modelo y garantizando la escalabilidad del flujo de trabajo.
 
 El tamaño final de la base de datos DuckDB fue de aproximadamente **55.8 GB**. Todo el entorno de trabajo es reproducible mediante `Dockerfile`, `docker-compose.yml` y el archivo `default.nix` (Nix), que definen las versiones exactas de R y las librerías necesarias.
 
@@ -281,7 +282,7 @@ La simulación se basa en los siguientes **supuestos** acerca de los conductores
 
 Para generar las **condiciones iniciales** (1,061 combinaciones), se realizó un muestreo aleatorio estratificado por mes, día de la semana y hora del día desde la tabla DuckDB, asegurando una representación equilibrada de distritos (Manhattan, Brooklyn, Queens) y compañías (Uber, Lyft, Juno, Via). Cada condición se simuló con 5 semillas reproducibles para obtener estimaciones robustas.
 
-Después de simular estas condiciones, podemos utilizar los resultados de Monte Carlo para inferir la distribución del salario medio diario por hora. Los ingresos promedio por hora se sitúan entre **\$54.97** y **\$55.21**, con un 95% de confianza, y una media de $55.09 dólares por hora (@fig-baseline-hist).
+Después de simular estas condiciones, podemos utilizar los resultados de Monte Carlo para inferir la distribución del salario medio diario por hora. Los ingresos promedio por hora se sitúan entre **\$54.97** y **\$55.21**, con un 95% de confianza, y una media de $55.09 dólares por hora. Estos resultados son los mostrados en @fig-baseline-hist mediante el uso de `ggplot2` y `ggtext` [@r_ggplot2; @ggtext2026]
 
 ```{r}
 #| label: fig-baseline-hist
@@ -456,32 +457,33 @@ Esto significa que, para incrementarlo en un 20%, la nueva tarifa debe ser de al
 
 ## Preprocesamiento y Feature Engineering
 
-El preprocesamiento de datos fue una fase extensa que combinó transformaciones estándares, ingeniería de variables temporales y espaciales, y la integración de fuentes de datos externas para enriquecer el conjunto de entrenamiento. Todo este proceso se encapsuló en una receta (`recipe`) de `tidymodels` para garantizar su reproducibilidad.
+El preprocesamiento de datos fue una fase extensa que combinó transformaciones estándares, ingeniería de variables temporales y espaciales, y la integración de fuentes de datos externas para enriquecer el conjunto de entrenamiento. Todo este proceso se encapsuló en una receta (`recipe`) de `tidymodels` para garantizar su reproducibilidad [@kuhn2022tidy; @r_tidymodels].
 
 ### Variables Espaciales
 
 Dada la alta cardinalidad de las variables categóricas de origen (`PULocationID`) y destino (`DOLocationID`) (cerca de 200 zonas TLC), estas fueron sustituidas por variables derivadas de información geoespacial y socioeconómica asociada a cada zona.
 
-* **Información geoespacial (OpenStreetMap)**: Se descargaron datos de OpenStreetMap utilizando los paquetes `osmdata` y `sf` para Manhattan, Brooklyn y Queens. Para cada zona TLC se calcularon variables derivadas de diferentes tipos de elementos geográficos: densidad de puntos (por ejemplo, `amenity` y `shop`), longitud de líneas (por ejemplo, `highway`) y proporción de área cubierta por polígonos (por ejemplo, `landuse`). Todas las métricas se normalizaron por el área de la zona para hacer comparables zonas de distintos tamaños. Tras el proceso de validación y selección, se conservaron **22 variables geoespaciales**.
+* **Información geoespacial (OpenStreetMap)**: Se descargaron datos de OpenStreetMap utilizando los paquetes `osmdata` y `sf` para Manhattan, Brooklyn y Queens [@osmdata2017]. Para cada zona TLC se calcularon variables derivadas de diferentes tipos de elementos geográficos: densidad de puntos (por ejemplo, `amenity` y `shop`), longitud de líneas (por ejemplo, `highway`) y proporción de área cubierta por polígonos (por ejemplo, `landuse`). Todas las métricas se normalizaron por el área de la zona para hacer comparables zonas de distintos tamaños. Tras el proceso de validación y selección, se conservaron **22 variables geoespaciales**.
 
-> **Información socioeconómica (Censo de EE. UU.)**: Se utilizaron `tidycensus` y datos de la **American Community Survey (ACS) 2022** y del **Censo Decenal 2020** para obtener variables a nivel de sector censal. Estas variables se agregaron a las zonas TLC mediante una unión espacial, calculando una media ponderada según la proporción del área de cada sector censal dentro de la zona. Dado el gran número de variables disponibles (aproximadamente **160,000**), primero se realizó una selección automática basada en técnicas de procesamiento de lenguaje natural (NLP). En particular, se agruparon variables con descripciones similares utilizando la **distancia de Jaccard** y detección de comunidades mediante **modularidad**, y posteriormente se identificaron las palabras más representativas de cada grupo mediante **TF-IDF**, lo que permitió seleccionar las categorías temáticas más relevantes y reducir el conjunto a **1,433 variables**. Finalmente, se conservaron únicamente aquellas que mostraban una mayor diferencia entre las medianas de los viajes aceptados y rechazados, obteniendo un conjunto final de **41 variables socioeconómicas**.
+> **Información socioeconómica (Censo de EE. UU.)**: Se utilizaron `tidycensus` y datos de la **American Community Survey (ACS) 2022** y del **Censo Decenal 2020** para obtener variables a nivel de sector censal [@tidycensus2026]. Estas variables se agregaron a las zonas TLC mediante una unión espacial, calculando una media ponderada según la proporción del área de cada sector censal dentro de la zona. Dado el gran número de variables disponibles (aproximadamente **160,000**), primero se realizó una selección automática basada en técnicas de procesamieOpenStreetMapnto de lenguaje natural (NLP). En particular, se agruparon variables con descripciones similares utilizando la **distancia de Jaccard** y detección de comunidades mediante **modularidad**, y posteriormente se identificaron las palabras más representativas de cada grupo mediante **TF-IDF**, lo que permitió seleccionar las categorías temáticas más relevantes y reducir el conjunto a **1,433 variables**. Finalmente, se conservaron únicamente aquellas que mostraban una mayor diferencia entre las medianas de los viajes aceptados y rechazados, obteniendo un conjunto final de **41 variables socioeconómicas**.
 
 
 ### Variables Temporales
 
-- **Ciclos Diarios y Semanales**: En lugar de usar la hora y el día de la semana de forma lineal, se utilizaron transformaciones seno y coseno (`step_harmonic`) para representar la naturaleza cíclica del tiempo. Esto permite que el modelo aprenda patrones como "las 23:00 es similar a la 01:00", algo que los valores numéricos lineales no capturan bien.
-- **Festivos**: Se generaron variables indicadoras y de "días hasta" para los principales festivos de EE. UU. (`step_holiday`).
-- **Franjas Horarias**: Se crearon variables binarias para AM/PM y se extrajeron componentes como el mes, semana, día del año, etc.
+- **Ciclos Diarios y Semanales**: En lugar de usar la hora y el día de la semana de forma lineal, se utilizaron transformaciones seno y coseno (`step_harmonic`) para representar la naturaleza cíclica del tiempo  [@embed2026]. Esto permite que el modelo aprenda patrones como "las 23:00 es similar a la 01:00", algo que los valores numéricos lineales no capturan bien.
+- **Festivos**: Se generaron variables indicadoras y de "días hasta" para los principales festivos de EE. UU. (`step_holiday`) [@timeDate2025].
+- **Franjas Horarias**: Se crearon variables binarias para AM/PM y se extrajeron componentes como el mes, semana, día del año, etc [@lubridate2021].
 
 ### Otras Transformaciones
 
 - **Manejo de Valores Atípicos**: Se eliminaron los viajes con `trip_time` < 2 minutos, `trip_miles` <= 0 y `driver_pay` <= 0, considerados erróneos o no representativos.
 - **Codificación de Categorías**: Las variables categóricas se convirtieron a *factor* y se aplicó `step_other` para agrupar niveles poco frecuentes.
 - **Escalado y Normalización**: Para modelos sensibles a la escala, se aplicaron transformaciones Yeo-Johnson y normalización.
+- **Balanceo de Clases**: Dado el desbalance inherente entre las clases generadas por el etiquetado con *lookahead* (aproximadamente un 25% de viajes etiquetados como "aceptables" frente al 75% restante), se aplicó una técnica de *downsampling* sobre la clase mayoritaria directamente en la receta de preprocesamiento. Esta estrategia, implementada mediante la función `step_downsample()` del paquete `themis` [@themis2025], permite que el modelo XGBoost aprenda patrones más representativos de los viajes realmente rentables, reduciendo el sesgo hacia la clase negativa y mejorando la calibración de las probabilidades predichas.
 
 ## Modelo de Clasificación (XGBoost) para Viajes de Alto Valor
 
-Para predecir si un viaje en oferta pertenece al **25% más rentable** de las alternativas disponibles en los próximos 15 minutos, se entrenó un modelo de clasificación **XGBoost**. El proceso de entrenamiento fue supervisado gracias a un etiquetado basado en *lookahead*.
+Para predecir si un viaje en oferta pertenece al **25% más rentable** de las alternativas disponibles en los próximos 15 minutos, se entrenó un modelo de clasificación **XGBoost** [@r_xgboost]. El proceso de entrenamiento fue supervisado gracias a un etiquetado basado en *lookahead*.
 
 ### Etiquetado con Lookahead
 
@@ -514,7 +516,7 @@ Este proceso de etiquetado, implementado en paralelo con `future`, garantiza que
 
 ### Entrenamiento y Selección del Modelo
 
-Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía).
+Se evaluaron múltiples algoritmos (Regresión Logística, FDA, MARS, Random Forest y XGBoost) en un pipeline de `tidymodels` con validación cruzada de 5 iteraciones. El modelo XGBoost fue el que demostró el mejor rendimiento principalmente debido a su capacidad para capturar interacciones complejas entre variables (ej. ubicación-hora-compañía) según se muestra en @fig-model-comparison.
 
 Se realizó una **optimización Bayesiana** de hiperparámetros para refinar el modelo, logrando una mejora en el *Brier Score* de 0.150 a **0.1443**. El Brier Score fue la métrica principal de calibración, ya que el objetivo final no es la clasificación en sí, sino el beneficio económico derivado de la política; por ello, la **evaluación final se realiza mediante simulación**.
 
