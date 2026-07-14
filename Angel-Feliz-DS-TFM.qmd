@@ -753,7 +753,7 @@ Al graficar los resultados de la simulación (@fig-start-dist) podemos ver que l
 
 ```{r}
 #| label: fig-start-dist
-#| fig-cap: "Distribución del salario medio por hora para las 65.856 combinaciones de inicio; el 10% superior supera los $75 por hora"
+#| fig-cap: "Distribución del salario medio por hora para las 65.856 combinaciones de inicio; el 10% superior supera los $70 por hora"
 #| fig-num: true
 #| fig-height: 4
 
