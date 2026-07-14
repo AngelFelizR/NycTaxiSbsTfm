@@ -641,7 +641,7 @@ ggplot(
 
 ```{r}
 #| label: fig-start-tree-beamer
-#| fig.cap: "Horarios para viajes de Uber en cualquier zonas."
+#| fig.cap: "Horarios para viajes de Uber en cualquier zona."
 #| fig.pos: "!ht"
 #| out.width: "95%"
 #| echo: false
@@ -764,7 +764,7 @@ ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
       dollar(FinalPfaMeansAfterStart[3L], accuracy = 1),
       "** confirmando resultados estables"
     ),
-    x = "Estrategía Implementada",
+    x = "Estrategia Implementada",
     y = "Ganancia por hora al final del día"
   ) +
   theme_light(base_family = Params$BaseFontFamily) +
@@ -772,7 +772,7 @@ ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
     plot.title = element_markdown(size = 14, family = Params$BaseFontFamily),
     plot.subtitle = element_markdown(size = 12, family = Params$BaseFontFamily),
     plot.title.position = "plot",
-    axis.title = element_text(face = "bold", size = 10),
+    axis.title = element_text(face = "bold", size = 9),
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     panel.grid.minor.y = element_blank(),

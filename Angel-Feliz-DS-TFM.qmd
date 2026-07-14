@@ -465,7 +465,7 @@ Dada la alta cardinalidad de las variables categóricas de origen (`PULocationID
 
 * **Información geoespacial (OpenStreetMap)**: Se descargaron datos de OpenStreetMap utilizando los paquetes `osmdata` y `sf` para Manhattan, Brooklyn y Queens [@osmdata2017]. Para cada zona TLC se calcularon variables derivadas de diferentes tipos de elementos geográficos: densidad de puntos (por ejemplo, `amenity` y `shop`), longitud de líneas (por ejemplo, `highway`) y proporción de área cubierta por polígonos (por ejemplo, `landuse`). Todas las métricas se normalizaron por el área de la zona para hacer comparables zonas de distintos tamaños. Tras el proceso de validación y selección, se conservaron **22 variables geoespaciales**.
 
-> **Información socioeconómica (Censo de EE. UU.)**: Se utilizaron `tidycensus` y datos de la **American Community Survey (ACS) 2022** y del **Censo Decenal 2020** para obtener variables a nivel de sector censal [@tidycensus2026]. Estas variables se agregaron a las zonas TLC mediante una unión espacial, calculando una media ponderada según la proporción del área de cada sector censal dentro de la zona. Dado el gran número de variables disponibles (aproximadamente **160,000**), primero se realizó una selección automática basada en técnicas de procesamieOpenStreetMapnto de lenguaje natural (NLP). En particular, se agruparon variables con descripciones similares utilizando la **distancia de Jaccard** y detección de comunidades mediante **modularidad**, y posteriormente se identificaron las palabras más representativas de cada grupo mediante **TF-IDF**, lo que permitió seleccionar las categorías temáticas más relevantes y reducir el conjunto a **1,433 variables**. Finalmente, se conservaron únicamente aquellas que mostraban una mayor diferencia entre las medianas de los viajes aceptados y rechazados, obteniendo un conjunto final de **41 variables socioeconómicas**.
+* **Información socioeconómica (Censo de EE. UU.)**: Se utilizaron `tidycensus` y datos de la **American Community Survey (ACS) 2022** y del **Censo Decenal 2020** para obtener variables a nivel de sector censal [@tidycensus2026]. Estas variables se agregaron a las zonas TLC mediante una unión espacial, calculando una media ponderada según la proporción del área de cada sector censal dentro de la zona. Dado el gran número de variables disponibles (aproximadamente **160,000**), primero se realizó una selección automática basada en técnicas de procesamieOpenStreetMapnto de lenguaje natural (NLP). En particular, se agruparon variables con descripciones similares utilizando la **distancia de Jaccard** y detección de comunidades mediante **modularidad**, y posteriormente se identificaron las palabras más representativas de cada grupo mediante **TF-IDF**, lo que permitió seleccionar las categorías temáticas más relevantes y reducir el conjunto a **1,433 variables**. Finalmente, se conservaron únicamente aquellas que mostraban una mayor diferencia entre las medianas de los viajes aceptados y rechazados, obteniendo un conjunto final de **41 variables socioeconómicas**.
 
 
 ### Variables Temporales
@@ -952,7 +952,7 @@ ggplot(FinalPfaResultsSummary, aes(strategy, daily_hourly_wage_mean)) +
       dollar(FinalPfaMeansAfterStart[3L], accuracy = 1),
       "** confirmando resultados estables"
     ),
-    x = "Estrategía Implementada",
+    x = "Estrategia Implementada",
     y = "Ganancia por hora al final del día"
   ) +
   theme_light(base_family = Params$BaseFontFamily) +
