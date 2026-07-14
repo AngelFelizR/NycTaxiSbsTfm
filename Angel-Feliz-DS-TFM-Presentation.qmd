@@ -317,7 +317,7 @@ visualize(SimulationVisData) +
 
 ---
 
-## Etiquetado con "lookahead" (ADP)
+## Definición de target: Etiquetado con "Lookahead" (ADP)
 
 :::: {.columns align=center}
 
@@ -332,6 +332,8 @@ visualize(SimulationVisData) +
 $$
 \text{perf} = \frac{\text{driver\_pay} + \text{tips}}{(\text{trip\_time} + \text{waiting\_secs}) / 3600} 
 $$
+
+![](figures/11-boxplot.jpg)
 
 :::
 
